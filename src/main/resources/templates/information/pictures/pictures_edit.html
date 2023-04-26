@@ -1,0 +1,126 @@
+<@override name="popTitle">机构编辑</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body" style="padding: 15px;">
+        <form class="layui-form" action="${webPath}/pictures/${msg }.do" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="PICTURES_ID" id="PICTURES_ID" value="${pd.PICTURES_ID}"/>
+            <div class="layui-form-item">
+                <label class="layui-form-label">标题：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="TITLE" id="TITLE" value="${pd.TITLE }" lay-verify="required"
+                           placeholder="这里输入标题" maxlength="50" autocomplete="on" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">图片：</label>
+                <div class="layui-input-block">
+                    <#if (pd == null || pd.PATH == '' || pd.PATH == null)>
+                    <div class="layui-upload-drag" id="uploadBefore">
+                        <i class="layui-icon"></i>
+                        <p>点击上传，或将文件拖拽到此处</p>
+                    </div>
+                    <input type="file" name="tp" id="tp" onchange="readImg(this)" class="layui-upload-file"
+                           lay-verify="required">
+                    <div id="uploadAfter" style="display: none;">
+                        <label class="layui-form-label"></label><img id="preview" style="width: 200px; height: 200px;"/>
+                    </div>
+                    <#else>
+                        <a href="${webPath}/uploadFiles/uploadImgs/${pd.PATH}" target="_blank">
+                            <img width="200" height="200" src="${webPath}/uploadFiles/uploadImgs/${pd.PATH}" /></a>
+                        <input type="button" class="layui-btn layui-btn-danger" value="删除" onclick="delP('${pd.PATH}','${pd.PICTURES_ID }');" />
+                        <input type="hidden" name="tpz" id="tpz" value="${pd.PATH }"/>
+                    </#if>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">属于：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="MASTER_ID" value="${pd.MASTER_ID }" lay-verify="required"
+                           maxlength="32" placeholder="这里输入属于" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="BZ" value="${pd.BZ }" lay-verify="required"
+                           maxlength="32" placeholder="这里输入备注" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button class="layui-btn" id="btn" lay-submit="" lay-filter="submit-form">提交</button>
+                        <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form','upload','site'], function(){
+    var $ = layui.$,form = layui.form, layer = layui.layer,upload = layui.upload,site = layui.site;
+    form.on('switch(switchTest)', function(data){
+        $(data.elem).attr('type', 'hidden').val(this.checked ? 1 : 2);
+    });
+    form.on('submit(submit-form)', function(obj){
+        var iSubmit = true;
+        var field = obj.field;
+        if(typeof($("#tpz").val()) == "undefined"){
+            if($("#tp").val()==""){
+                layer.msg('请选图片',{time:2*1000});
+                iSubmit = false;
+            }
+        }
+        return iSubmit;
+    });
+    $(document).on('click','#cancel-form',function(){
+        var index=layer.getFrameIndex(window.name);
+        layer.close(index);
+    });
+$('#uploadBefore').on('click',function(){
+    document.getElementById("tp").click();
+});
+    window.readImg = function(e){
+        //检验是否为图像文件
+        var file = e.files[0];
+        if(!/image\/\w+/.test(file.type)){
+            layer.msg("看清楚，这个需要图片！");
+            return false;
+        }
+        var reader = new FileReader();
+        //将文件以Data URL形式读入页面
+        reader.readAsDataURL(file);
+        reader.onload=function(e){
+            var preview=document.getElementById("preview");
+            preview.src=this.result;
+            preview.style.display="block";
+            $('#uploadBefore').attr('style','display: none;');
+            $('#uploadAfter').attr('style','');
+        }
+    }
+    window.delP = function (PATH,PICTURES_ID){
+        layer.confirm('确定要删除图片？', function(index){
+            site.post("${webPath}/pictures/deltp.do",
+             {PATH:PATH,PICTURES_ID:PICTURES_ID,guid:new Date().getTime()},function(data){
+                if(data=="success"){
+                    layer.alert("删除成功!");
+                    document.location.reload();
+                }
+                layer.close(index);
+            });
+        });
+    }
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

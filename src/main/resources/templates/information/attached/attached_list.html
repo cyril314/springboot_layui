@@ -1,0 +1,129 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab-content">
+                        <div class="layui-form-item layui-form">
+
+                            <div class="layui-inline">
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" id="keywords" name="keywords" value="${pd.keywords}" placeholder="这里输入关键词" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="layui-btn-group layui-inline">
+                                <div class="layui-input-inline">
+                                    <#if QX.cha == 1>
+                                        <button class="layui-btn" lay-submit="" lay-filter="form-submit" lay-type="reload" title="搜索">
+                                            <i class="layui-icon">&#xe615;</i>
+                                        </button>
+                                    </#if>
+                                    <#if QX.toExcel == 1><button class="layui-btn" lay-type="toExcel" title="导出到EXCEL"><i class="layui-icon">&#xe601;</i></button></#if>
+                                </div>
+                            </div>
+                            <button class="layui-btn layui-lay-btn layui-btn-primary" lay-type="add" title="新增"><i class="layui-icon">&#xe654;</i></button>
+                        </div>
+                        <table class="layui-hide" id="test-table-page" lay-filter="test-table-toolbar"></table>
+                        <script type="text/html" id="zizeng">
+                            {{d.LAY_TABLE_INDEX+1}}
+                        </script>
+                        <script type="text/html" id="test-table-toolbar-barDemo">
+                            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['form', 'table','index','site'], function(){
+    var table = layui.table, $ = layui.$, site = layui.site, form = layui.form, active = {
+        common:function(_url,_title,_width,_height){
+            layer.open({
+                type: 2,
+                title: _title,
+                id: 'LAY_layui_AppUser',
+                shadeClose: true,
+                shade: 0.8,
+                area: [_width, _height],
+                content: _url
+            });
+        },
+        add: function(e){
+            var url = "${webPath}/attached/goAdd.do";
+            active.common(url,'新增','600px','300px');
+        }
+    };
+    $('.layui-card-body .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+    form.on('submit(form-submit)', function(data){
+        var field = data.field;
+        table.reload('test-table-page', {
+            page: {
+                currentPage: 1 //重新从第 1 页开始
+            },where: {
+                keywords: field.keywords,
+            }
+        });
+        return false;
+    });
+
+    table.render({
+        elem: '#test-table-page'
+        ,url: '${webPath}/attached/list'
+        ,method: 'post'
+        ,cols: [[
+            {type:'checkbox'}
+            ,{field:'', title: '序号',templet:'#zizeng'}
+            ,{field:'NAME', title: '名称'}
+            ,{field:'FDESCRIBE', title: '描述'}
+            ,{field:'PRICE', title: '价格'}
+            ,{field:'CTIME', title: '创建时间'}
+            ,{fixed:'right', title:'操作', width:'15%', toolbar: '#test-table-toolbar-barDemo',align: 'center'}
+        ]]
+        ,page: true
+        ,request: {
+            pageName: 'currentPage' //页码的参数名称，默认：page
+            ,limitName: 'showCount' //每页数据量的参数名，默认：limit
+        }
+        ,parseData: function(res){ //res 即为原始返回的数据
+            return {
+                "code": res.code, //解析接口状态
+                "msg": res.msg, //解析提示文本
+                "data": res.varList //解析数据列表
+            };
+        }
+    });
+    //监听行工具事件
+    table.on('tool(test-table-toolbar)', function(obj){
+        var _data = obj.data;
+        if(obj.event === 'del'){
+            layer.confirm('确定要删除吗?', function(index){
+            site.post("${webPath}/attached/delete.do",
+            {ATTACHED_ID:_data.ATTACHED_ID,tm:new Date().getTime()},function(data){
+            table.reload("test-table-page",{ page: {curr: 1 } });
+            layer.close(index);
+            });
+            });
+        } else if(obj.event === 'edit'){
+            var url = "${webPath}/attached/goEdit.do?ATTACHED_ID="+_data.ATTACHED_ID;
+            active.common(url,'编辑','600px','300px');
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

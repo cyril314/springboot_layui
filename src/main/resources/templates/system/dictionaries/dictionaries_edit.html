@@ -1,0 +1,109 @@
+<@override name="popTitle">机构编辑</@override>
+
+<@override name="body">
+    <div class="layui-card">
+        <div class="layui-card-body" style="padding: 15px;">
+            <form class="layui-form" action="${webPath}/menu/${msg }.do" method="post" lay-filter="component-form-group">
+                <input type="hidden" name="DICTIONARIES_ID" id="DICTIONARIES_ID" value="${pd.DICTIONARIES_ID}"/>
+                <input type="hidden" name="PARENT_ID" id="PARENT_ID" value="${(null == pd.PARENT_ID) ? string(DICTIONARIES_ID,pd.PARENT_ID)}"/>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">上级：</label>
+                        <div class="layui-input-inline">
+                            <div class="layui-form-mid layui-word-aux">
+                                ${(null == pds.NAME) ? string('(无) 此项为顶级',pds.NAME)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="NAME" id="NAME" value="${pd.NAME }" lay-verify="required"
+                                   placeholder="这里输入名称" maxlength="50" autocomplete="on" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">英文：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="NAME_EN" value="${pd.NAME_EN }" lay-verify="required"
+                                   maxlength="32" placeholder="这里输入英文" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">编码：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="BIANMA" name="BIANMA" value="${pd.BIANMA }" lay-verify="required"
+                                   maxlength="32" placeholder="这里输入编码" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">排序：</label>
+                        <div class="layui-input-inline">
+                            <input type="number" name="ORDER_BY" value="${pd.ORDER_BY }" lay-verify="number|required"
+                                   maxlength="32" placeholder="这里输入排序" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">备注：</label>
+                        <div class="layui-input-inline">
+                            <textarea id="BZ" name="BZ" placeholder="这里输入备注" class="layui-textarea"
+                                      style="min-width: 515px;">${pd.BZ}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">排查表：</label>
+                        <div class="layui-input-inline">
+                            <input type="number" name="TBSNAME" value="${pd.TBSNAME }" maxlength="32"
+                                   placeholder="这里输入排序" class="layui-input" />
+                        </div>
+                        <div class="layui-input-inline">
+                            <p class="text-warning bigger-110 orange">排查表：删除此条数据时会去此表查询是否被占用(是:禁止删除)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button class="layui-btn" lay-submit="" lay-filter="submit-form">提交</button>
+                            <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form;
+    $(document).ready(function(){
+        if($("#BIANMA").val()!=""){
+            $("#BIANMA").attr("readonly","readonly");
+        }
+    });
+    form.verify({
+        number : [/^[0-9]*$/, '必须输入正整数']
+    });
+    $(document).on('click','#cancel-form',function(){
+        window.history.go(-1);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

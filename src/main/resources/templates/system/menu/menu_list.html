@@ -1,0 +1,145 @@
+<@override name="popTitle">菜单列表</@override>
+<@override name="CSS">
+.laui-sign .layui-nav-child dd{width:25px;padding:5px 10px;}
+.laui-sign.layui-nav .layui-nav-child a{padding:0;}
+.laui-sign.layui-nav{background:none;}
+.laui-sign.layui-nav .layui-nav-more{border-color: rgb(57,61,73) transparent transparent;border-top-color: rgb(57,61,73);position:absolute;left:50%;top:50%;margin-top:0px;margin-left:-6px;}
+.laui-sign .layui-nav-bar{display:none;}
+.layui-nav .layui-nav-item a{position:relative;line-height: normal; }
+.layui-nav .layui-nav-child{top:45px}
+</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="layui-form">
+            <table class="layui-table">
+                <thead>
+                    <tr>
+                        <th class='lay-text-center'>序号</th>
+                        <th class='lay-text-center'>名称</th>
+                        <th class='lay-text-center'>资源路径</th>
+                        <th class='lay-text-center'>状态</th>
+                        <th class='lay-text-center'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <#if menuList! >
+                        <#if QX.cha == 1>
+                            <#list menuList as menu>
+                                <tr>
+                                    <td align='center'>${menu.MENU_ORDER }</td>
+                                    <td>
+                                        <#if menu.PARENT_ID == '0'>
+                                            <#if menu.MENU_TYPE == '1'>
+                                                <span class="layui-badge layui-bg-green arrowed">系统</span>
+                                            <#else>
+                                                <span class="layui-badge arrowed-in">业务</span>
+                                            </#if>
+                                        </#if>
+                                        <i class="${menu.MENU_ICON }">&nbsp;</i>
+                                        <a href="javascript:goSondict('${menu.MENU_ID }')" class="blue">${menu.MENU_NAME}</a>
+                                    </td>
+                                    <td>${(menu.MENU_URL == '#')? string('', menu.MENU_URL)}</td>
+                                    <td align='center'><i class="ace-icon fa ${(menu.MENU_STATE == 1)? string('fa-eye','fa-eye-slash')}"></i></td>
+                                    <td align='center' class="layui-nav laui-sign">
+                                        <#if QX.edit != 1 && Qx.del != 1><span>无权限</span></#if>
+                                        <li class="layui-nav-item">
+                                            <a href="javascript:;">&nbsp;</a>
+                                            <dl class="layui-nav-child">
+                                                <#if QX.edit == 1>
+                                                    <dd><a class="layui-btn layui-bg-blue layui-btn-xs" onclick="editTb('${menu.MENU_ID}')" title="编辑图标"><i class="layui-icon" style="margin-left:3px;">&#xe60d;</i></a></dd>
+                                                    <dd><a class="layui-btn layui-btn-xs" onclick="edit('${menu.MENU_ID}')" title="编辑"><i class="layui-icon" style="margin-left:3px;">&#xe642;</i></a></dd>
+                                                </#if>
+                                                <#if QX.del == 1>
+                                                    <dd><a class="layui-btn layui-btn-danger layui-btn-xs" onclick="del('${menu.MENU_ID}')" title="删除"><i class="layui-icon" style="margin-left:3px;">&#xe640;</i></a></dd>
+                                                </#if>
+                                            </dl>
+                                        </li>
+                                    </td>
+                                </tr>
+                            </#list>
+                        <#else>
+                            <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                        </#if>
+                    <#else>
+                        <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                    </#if>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="layui-tab-content layui-btn-group">
+        <#if QX.add == 1><button class="layui-btn layui-btn-primary" lay-type="add" title="新增"><i class="layui-icon">&#xe654;</i></button></#if>
+        <#if null != pd.MENU_ID && pd.MENU_ID != '0'>
+            <button class="layui-btn layui-btn-danger" lay-type="ret" title="返回"><i class="layui-icon">&#xe65c;</i></button>
+        </#if>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table','site','element'], function(){
+    var laypage = layui.laypage,site = layui.site,$ = layui.$, element = layui.element,active = {
+        common: function(_url,_title,_width,_height){
+            layer.open({
+                type: 2,
+                title: _title,
+                id: 'LAY_layui_department',
+                shadeClose: true,
+                shade: 0.8,
+                area: [_width, _height],
+                content: [_url,'no']
+            });
+        },
+        add: function(){
+            window.location.href='${webPath}/menu/toAdd.do?MENU_ID=${MENU_ID}'
+        },
+        ret: function(){
+            goSondict('${pd.PARENT_ID}');
+        }
+    };
+
+    $('.layui-btn-group .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+
+    window.goSondict = function (id){
+        window.location.href="${webPath}/menu.do?MENU_ID="+id;
+    };
+
+    window.edit = function (id){
+        active.common('${webPath}/menu/toEdit.do?id='+id,'编辑','750px','500px');
+    };
+    window.editTb = function (id){
+        active.common('${webPath}/menu/toEditicon.do?MENU_ID='+id,'编辑图标','850px','500px');
+    };
+
+    window.del = function (id){
+        layer.confirm('确定要删除选中的数据吗', function(index){
+            site.post("${webPath}/menu/delete.do",
+            {MENU_ID:id,guid:new Date().getTime()},function(data){
+                if("success" == data.result){
+                    parent.location.reload();
+                }else{
+                    layer.alert('删除失败,请先删除子菜单!');
+                }
+                layer.close(index);
+            });
+        });
+    };
+element.on('nav(demo)', function(elem){
+//console.log(elem)
+layer.msg(elem.text());
+});
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

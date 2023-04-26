@@ -1,0 +1,128 @@
+<@override name="popTitle"></@override>
+
+<@override name="body">
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6">
+            <div class="layui-card-header">
+                <div class="layui-row layui-col-space12">
+                    <form class="layui-form">
+                        <div class="layui-col-xs10 layui-col-md10">
+                            <input type="text" name="encoderContent" lay-verify="required"
+                                   placeholder="输入需要生成的链接" autocomplete="on" class="layui-input" />
+                        </div>
+                        <div class="layui-col-xs2 layui-col-md2">
+                            <button class="layui-btn" lay-submit="" lay-filter="layui-form-submit" title="生成">
+                                <i class="fa fa-print"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="layui-card-body layui-row layui-col-space10">
+                <div class="layui-col-md6">
+                    <div class="layui-card">
+                        <div class="layui-card-header">生成二维码</div>
+                        <div class="layui-card-body">
+                            <div class="layui-row">
+                                <img id="encoderImgId" src="${webPath}/uploadFiles/uploadImgs/noPhoto.gif"
+                                     cache="false" width="301px" height="301px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <div class="layui-card">
+                        <div class="layui-card-header">解析二维码</div>
+                        <div class="layui-card-body layui-form">
+                            <div class="layui-form-item">
+                                <textarea id="readContent" title="解析结果" placeholder="显示解析结果"
+                                    class="layui-textarea" style="width:375px;height:233px;"></textarea>
+                            </div>
+                            <div class="layui-form-item">
+                                <button type="button" class="layui-btn" id="upload-change">
+                                    <i class="layui-icon">&#xe67c;</i>选择二维码
+                                </button>
+                                <button type="button" class="layui-btn" id="upload-change-action">解析</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form','upload'], function(){
+    var $ = layui.$,form = layui.form,upload = layui.upload;
+    form.on('submit(layui-btn-submit)', function(obj){
+        $.ajax({
+            type: "POST",
+            url: '${webPath}/tool/createTwoDimensionCode.do',
+            data: {encoderContent:$("#encoderContent").val(),tm:new Date().getTime()},
+            dataType:'json',
+            cache: false,
+            success: function(data){
+                if("success" == data.result){
+                    layer.tips('生成成功', '#encoderContent', {tips: [3, '#0FA6D8'],time:2000});
+                    $("#encoderImgId").attr("src",'${webPath}/uploadFiles/twoDimensionCode/' + data.encoderImgId);
+                }else{
+                    layer.tips('生成失败,后台有误', '#encoderContent', {tips: [3, '#0FA6D8'],time:2000});
+                    $("#encoderImgId").attr("src",locat+"/uploadFiles/twoDimensionCode/default.png");
+                    return;
+                }
+            }
+        });
+        return false;
+    });
+
+    var uploadInst = upload.render({
+        elem: '#upload-change' //绑定元素
+        ,url: '${webPath}/tool/uploadFile.do?uploadPath=/uploadFiles/twoDimensionCode/' //上传接口
+        ,auto: false
+        ,bindAction: '#upload-change-action'
+        ,before: function(obj){
+            layer.load(); //上传loading
+        }
+        ,done: function(res){
+            if(res.data != ''){
+                $.ajax({
+                    type: "POST",
+                    url: '${webPath}/tool/readTwoDimensionCode.do',
+                    data: {imgId:res.data,tm:new Date().getTime()},
+                    dataType:'json',
+                    cache: false,
+                    success: function(data){
+                        if("success" == data.result){
+                            if('null' == data.readContent || null == data.readContent){
+                                $("#readContent").text("读不出内容, 检查是否有效二维码");
+                            }else{
+                                layer.tips('读取成功', '#readContent', {tips: [3, '#0FA6D8'],time:2000});
+                                $("#readContent").val(data.readContent);
+                            }
+                        }else{
+                            layer.tips('读取失败,后台有误', '#readContent', {tips: [3, '#0FA6D8'],time:2000});
+                            return;
+                        }
+                    }
+                });
+            }
+
+            layer.closeAll('loading');
+        }
+        ,error: function(){
+            layer.closeAll('loading'); //关闭loading
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

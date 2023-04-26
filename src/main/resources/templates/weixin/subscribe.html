@@ -1,0 +1,66 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-header blue">关注回复</div>
+            <div class="layui-card-body">
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-col-md6">
+                        <div class="layui-card">
+                            <div class="layui-card-header blue" style="background-color: #F2F2F2;">回复类型</div>
+                            <div class="layui-card-body">
+                                ${msg}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-col-md6">
+                        <div class="layui-card">
+                            <div class="layui-card-header blue" style="background-color: #F2F2F2;">回复内容 </div>
+                            <div class="layui-card-body">
+                                ${content}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-col-md6">
+                        <div class="layui-card">
+                            <div class="layui-card-body">
+                                <ul class="">
+                                    <li class=""><i class="layui-badge-dot layui-bg-green"></i>
+                                        在文本回复、图文回复、应用命令中
+                                    </li>
+                                    <li class=""><i class="layui-badge-dot layui-bg-green"></i>
+                                        添加一个关键词为"关注"的记录
+                                    </li>
+                                    <li class=""><i class="layui-badge-dot layui-bg-green"></i>
+                                        即为关注回复内容
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" value="no" id="hasTp1" />
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index'], function(){
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

@@ -1,0 +1,48 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid layadmin-homepage-fluid">
+    <div class="layui-row layui-col-space8">
+        <div class="layui-col-md2">
+            <div class="layui-container">
+                <ul id="leftTree"></ul>
+            </div>
+        </div>
+        <div class="layui-col-md10">
+            <iframe src="${webPath}/menu.do?MENU_ID=${MENU_ID}" name="treeFrame" id="treeFrame" frameborder="0"></iframe>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index','tree'], function(){
+    var $ = layui.$,tree = layui.tree,data = ${zTreeNodes};
+    $(function(){
+        window.onresize=function(){
+            var hmainT = document.getElementById("treeFrame");
+            var bheightT = document.documentElement.clientHeight;
+            hmainT.style.width = '100%';
+            hmainT.style.height = (bheightT-26) + 'px';
+        };
+        onresize();
+    });
+    tree({
+        elem: '#leftTree' //传入元素选择器
+        ,nodes: data
+        ,click: function(item){ //点击节点回调
+            var url = "${webPath}/menu/toEdit.do?id="+item.id;
+            var frame = document.getElementById("treeFrame");
+            frame.src=url;
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

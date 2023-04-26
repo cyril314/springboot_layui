@@ -1,0 +1,236 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab-content">
+                        <div class="layui-form-item">
+                            <form class="layui-form" action="${webPath}/fhsms/list.do" method="post">
+                                <div class="layui-inline">
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" name="keywords" id="keywords" value="${pd.keywords}" placeholder="这里输入关键词" autocomplete="off" />
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <div class="layui-input-inline" style="width: 100px;">
+                                        <input type="text" class="layui-input" name="lastLoginStart" id="lastLoginStart" value="${pd.lastLoginStart}" placeholder="开始日期"/>
+                                    </div>
+                                    <div class="layui-form-mid">-</div>
+                                    <div class="layui-input-inline" style="width: 100px;">
+                                        <input type="text" class="layui-input" name="lastLoginEnd" id="lastLoginEnd" value="${pd.lastLoginEnd}" placeholder="结束日期"/>
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <div class="layui-input-inline layui-form">
+                                        <select name="STATUS" id="LAY_STATUS">
+                                            <option value="">请选择状态</option>
+                                            <option value="">全部</option>
+                                            <option value="1" <#if pd.STATUS==1>selected</#if>>已读</option>
+                                            <option value="2" <#if pd.STATUS==2>selected</#if>>未读</option>
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-btn-group layui-inline">
+                                    <div class="layui-input-inline">
+                                        <#if QX.cha == 1>
+                                            <button class="layui-btn" type="submit" title="搜索"><i class="layui-icon">&#xe615;</i></button>
+                                        </#if>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <input type="checkbox" lay-skin="switch" id="MOLD" name="TYPE" value="${(pd.TYPE==2)?string('2','1')}"
+                                               lay-filter="switchTest" ${(pd.TYPE=='2')?string('','checked')} lay-text="收件箱|发件箱" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-form">
+                            <table class="layui-table">
+                                <thead>
+                                <tr>
+                                    <th style="width: 18px;">
+                                        <input type="checkbox" name="checkbox" lay-skin="primary" lay-filter="allChoose">
+                                    </th>
+                                    <th class='lay-text-center'>序号</th>
+                                    <th class='lay-text-center'>发信人</th>
+                                    <th class='lay-text-center'>收信人</th>
+                                    <th class='lay-text-center'>发信时间</th>
+                                    <th class='lay-text-center'>状态</th>
+                                    <th class='lay-text-center'>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <#if varList! >
+                                    <#if QX.cha == 1>
+                                        <#list varList as va>
+                                        <tr>
+                                            <td><input type="checkbox" name="checkbox" id="${va.TO_USERNAME}" value="${va.FHSMS_ID}" lay-skin="primary"></td>
+                                            <td align='center'>${va_index}</td>
+                                            <#if pd.TYPE != '2'>
+                                            <td align='center'>${va.TO_USERNAME}</td>
+                                            <td align='center'>${va.FROM_USERNAME}</td>
+                                            <#else>
+                                            <td align='center'>${va.FROM_USERNAME}</td>
+                                            <td align='center'>${va.TO_USERNAME}</td>
+                                            </#if>
+                                            <td align='center'>${va.SEND_TIME}</td>
+                                            <td align='center' id="STATUS${va_index}">${(va.STATUS == '2')?string('未读','已读')}</td>
+                                            <td align='center'>
+                                                <#if QX.edit != 1 && Qx.del != 1><span>无权限</span></#if>
+                                                <#if QX.edit == 1>
+                                                    <a onclick="viewx('STATUS${va_index}','${va.STATUS}','${(pd.TYPE == '2')?string('2','1') }','${va.FHSMS_ID}','${va.SANME_ID}')"
+                                                       class="layui-btn layui-btn-primary layui-btn-xs"  title="查看"><i class="layui-icon" style="margin-left:3px;">&#xe615;</i></a>
+                                                </#if>
+                                                <#if QX.FHSMS == 1>
+                                                    <a class="layui-btn layui-btn-xs" onclick="sendFhsms('${va.TO_USERNAME}')" title="发送站内信">
+                                                        <i class="layui-icon" style="margin-left:3px;">&#xe69f;</i></a>
+                                                </#if>
+                                                <#if QX.del == 1>
+                                                    <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="del('${va.DEPARTMENT_ID}')" title="删除">
+                                                        <i class="layui-icon" style="margin-left:3px;">&#xe640;</i></a>
+                                                </#if>
+                                            </td>
+                                        </tr>
+                                        </#list>
+                                    <#else>
+                                        <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                                    </#if>
+                                <#else>
+                                    <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                                </#if>
+                                </tbody>
+                            </table>
+                    <div id="test1"></div>
+                </div>
+                    </div>
+                    <div class="layui-tab-content layui-btn-group">
+                        <#if QX.add == 1><button class="layui-btn" lay-type="add" title="批量发送站内信"><i class="layui-icon">&#xe69f;</i></button></#if>
+                        <#if QX.del == 1><button class="layui-btn layui-btn-danger" lay-type="allDel" title="批量删除"><i class="layui-icon">&#xe640;</i></button></#if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table','laypage','site', 'laydate'], function(){
+    var form = layui.form, table = layui.table,laydate = layui.laydate
+     , $ = layui.$, laypage = layui.laypage, site = layui.site, active = {
+        common:function(_url,_title,_width,_height){
+            layer.open({
+                type: 2,
+                title: _title,
+                id: 'LAY_layui_SMS',
+                shadeClose: true,
+                shade: 0.8,
+                area: [_width, _height],
+                content: [_url,'no']
+            });
+        },
+        allDel: function(){
+            var arr = new Array();
+            $("input:checkbox[name='checkbox']:checked").each(function(i){
+                var obj = $(this).val();
+                arr[i] = obj.FHSMS_ID;
+            });
+            if(arr.length<1){layer.msg("没有选中数据"); return false;}
+            layer.confirm('确定要删除选中的数据吗', function(index){
+                site.post("${webPath}/fhsms/deleteAll.do",
+                 {DATA_IDS:arr.join(","),tm:new Date().getTime()},function(data){
+                    layer.close(index);
+                    var mold = $("#MOLD").val();
+                    window.location.href='${webPath}/fhsms/list.do?TYPE='+mold;
+                });
+            });
+        },
+        add: function(){
+            var username = '';
+            $("input:checkbox[name='checkbox']:checked").each(function(i){
+                var _obj = $(this).attr('id');
+                if(!(site.isEmpty(_obj))){
+                    if(username=='') username += $(this).attr('id');
+                    else username += ';' + $(this).attr('id');
+                }
+            });
+            if(username.length<1){layer.msg("没有选中数据"); return false;}
+            layer.confirm('确定要选中的发送站内信吗', function(index){
+                layer.close(index);
+                sendFhsms(username);
+            });
+        }
+    };
+    $('.layui-card-body .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+    form.on('switch(switchTest)', function(data){
+        $(data.elem).attr('type', 'hidden').val(this.checked ? 1 : 2);
+        if($(data.elem).val()==2){
+            window.location.href='${webPath}/fhsms/list.do?TYPE=2';
+        }else{
+            window.location.href='${webPath}/fhsms/list.do?TYPE=1';
+        }
+    });
+    laydate.render({
+        elem: '#lastLoginStart'
+    });
+    laydate.render({
+        elem: '#lastLoginEnd'
+    });
+    //执行一个laypage实例
+    laypage.render({
+        elem: 'test1' //注意，这里的 test1 是 ID，不用加 # 号
+        ,count: ${count} //数据总数，从服务端得到
+    });
+    form.on('checkbox(allChoose)', function(data){
+        var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
+        child.each(function(index, item){
+            item.checked = data.elem.checked;
+        });
+        form.render('checkbox');
+    });
+
+    window.viewx = function(ztid,STATUS,type,Id,SANME_ID){
+        var url = '${webPath}/fhsms/goView.do?FHSMS_ID='+Id+'&TYPE='+type+'&SANME_ID='+SANME_ID+'&STATUS='+STATUS;
+        layer.open({
+            type: 2,
+            title: '查看',
+            id: 'LAY_layui_SMS_view',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['600px','500px'],
+            content: [url,'no'],
+            cancel : function(){
+                location.reload();
+            }
+        });
+    };
+    window.sendFhsms = function(username){
+        var url = '${webPath}/fhsms/goAdd.do?username='+username;
+        active.common(url,'站内信','600px','500px');
+    };
+    window.del = function(){
+        layer.confirm('确定要删除选中的数据吗', function(index){
+         site.post("${webPath}/fhsms/delete.do",
+            {FHSMS_ID:arr.join(","),tm:new Date().getTime()},function(data){
+                layer.close(index);
+                var mold = $("#MOLD").val();
+                window.location.href='${webPath}/fhsms/list.do?TYPE='+mold;
+            });
+        });
+    };
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

@@ -1,0 +1,81 @@
+<@override name="popTitle">下载图片</@override>
+
+<@override name="CSS">
+</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body layui-form" style="padding: 15px;">
+        <blockquote class="layui-elem-quote layui-form-item">
+            <div class="layui-inline">
+                <input class="layui-input" type="text" id="serverUrl" title="请输入要爬的网页地址" placeholder="请输入要爬的网页地址" style="width:540px;">
+            </div>
+            <div class="layui-btn-group layui-inline">
+                <div class="layui-input-inline">
+                    <button class="layui-btn" onclick="getUrl('');" title="爬取"><i class="layui-icon">&#xe601;</i></button>
+                    <button class="layui-btn" onclick="getUrl('save');" title="搜索">保存至服务器</button>
+                </div>
+            </div>
+        </blockquote>
+        <div class="layui-fluid layadmin-cmdlist-fluid">
+            <div class="layui-row layui-col-space30" id="imgList">
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index','laypage'], function(){
+    var $ = layui.$, laypage = layui.laypage;
+    //请求连接地址发送给后台处理
+    window.getUrl = function (msg){
+        var serverUrl = $("#serverUrl").val();
+        if("" == serverUrl){
+            layer.msg("请输入要爬取的地址");
+            return;
+        }
+        if("save" == msg){
+            layer.msg("提交成功,等待保存完毕",{time:2*1000});
+        }
+        $.ajax({
+            type: "POST",
+            url: '${webPath}/pictures/getImagePath.do',
+            data: {serverUrl:serverUrl,msg:msg,tm:new Date().getTime()},
+            dataType:'json',
+            cache: false,
+            success: function(data){
+                if("success" == data.result){
+                    $("#imgList").html('');
+                    var count = 0;	//总数
+                    $.each(data.imgList, function(i, imgPath){
+                        $("#imgList").append(
+                        '<div class="layui-col-md2 layui-col-sm4">'+
+                            '<div class="cmdlist-container">'+
+                                '<a href="javascript:;"><img src="'+imgPath+'"></a>'+
+                            '</div>'+
+                        '</div>'
+                        );
+                        count = i+1;
+                    });
+                    layer.msg('成功爬到 '+count+' 张图片',{time:2*1000});
+                    //总页数低于页码总数
+                    //laypage.render({elem: 'demo0',count: count });
+                }else if("error" == data.result){
+                    layer.msg('爬取失败,地址错误或没有图片',{time:2*1000});
+                }else if("saveok" == data.result){
+                    layer.msg('保存成功至图片列表片',{time:2*1000});
+                }
+            }
+        });
+    }
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

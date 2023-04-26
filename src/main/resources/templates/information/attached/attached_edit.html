@@ -1,0 +1,63 @@
+<@override name="popTitle">机构编辑</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body" style="padding: 15px;">
+        <form class="layui-form" action="${webPath}/attached/${msg }.do" method="post" lay-filter="component-form-group">
+            <input type="hidden" name="ATTACHED_ID" id="ATTACHED_ID" value="${pd.ATTACHED_ID}"/>
+            <div class="layui-form-item">
+                <label class="layui-form-label">名称:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="NAME" id="NAME" value="${pd.NAME }" lay-verify="required"
+                           placeholder="这里输入名称" maxlength="50" autocomplete="on" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">描述:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="FDESCRIBE" value="${pd.FDESCRIBE }" lay-verify="required"
+                           maxlength="32" placeholder="这里输入描述" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">价格:</label>
+                <div class="layui-input-block">
+                    <input type="number" name="PRICE" value="${pd.PRICE }" lay-verify="number|required"
+                           maxlength="32" placeholder="这里输入价格" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button class="layui-btn" lay-submit="" lay-filter="submit-form">提交</button>
+                        <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form;
+    form.on('switch(switchTest)', function(data){
+        $(data.elem).attr('type', 'hidden').val(this.checked ? 1 : 2);
+    });
+    form.verify({
+        number : [/^[0-9]*$/, '必须输入正整数']
+    });
+    $(document).on('click','#cancel-form',function(){
+        window.history.go(-1);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

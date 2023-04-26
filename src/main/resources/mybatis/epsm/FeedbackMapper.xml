@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="FeedbackMapper">	
+	  <resultMap id="resultEpsmFeedbackMap" type="com.fit.entity.epsm.Feedback">
+        <id column="FEEDBACK_ID" property="feedbackid" />
+        <result column="CONTENT" property="content" />
+        <result column="ACTORID" property="actorid" />
+        <result column="ADDRESS" property="address" />
+        <result column="ADDRESSLATITUDE" property="addresslatitude" />
+        <result column="ADDRESSLONGITUDE" property="addresslongitude" />
+        <result column="SENSELEVLE" property="senselevle" />
+        <result column="STATUS" property="status" />
+        <result column="REMARK" property="remark" />
+        <result column="DELETEFLAG" property="deleteflag" />
+        <result column="CREATETIME" property="createtime" />
+        <result column="CREATORID" property="creatorid" />
+        <result column="UPDATETIME" property="updatetime" />
+        <result column="UPDATERID" property="updaterid" />
+        
+        <association property="actor" column="ACTORID" javaType="com.fit.entity.epsm.Actor">
+			<id column="ACTOR_ID" property="actorid"/>
+			<result column="ACTOR_NAME" property="actorname"/>
+		</association>
+    </resultMap>
+	
+	
+	<!--表名 -->
+	<sql id="tableName">
+		T_EPSM_FEEDBACK
+	</sql>
+	
+	<!--表名 -->
+	<sql id="actorTableName">
+		T_EPSM_ACTOR
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		CONTENT,	
+		ACTORID,	
+		ADDRESS,	
+		ADDRESSLATITUDE,	
+		ADDRESSLONGITUDE,	
+		SENSELEVLE,	
+		STATUS,	
+		REMARK,	
+		DELETEFLAG,	
+		CREATETIME,	
+		UPDATETIME,	
+		CREATORID,	
+		UPDATERID,	
+		FEEDBACK_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{CONTENT},	
+		#{ACTORID},	
+		#{ADDRESS},	
+		#{ADDRESSLATITUDE},	
+		#{ADDRESSLONGITUDE},	
+		#{SENSELEVLE},	
+		#{STATUS},	
+		#{REMARK},	
+		#{DELETEFLAG},	
+		#{CREATETIME},	
+		#{UPDATETIME},	
+		#{CREATORID},	
+		#{UPDATERID},	
+		#{FEEDBACK_ID}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			FEEDBACK_ID = #{FEEDBACK_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			CONTENT = #{CONTENT},
+			ACTORID = #{ACTORID},
+			ADDRESS = #{ADDRESS},
+			ADDRESSLATITUDE = #{ADDRESSLATITUDE},
+			ADDRESSLONGITUDE = #{ADDRESSLONGITUDE},
+			SENSELEVLE = #{SENSELEVLE},
+			STATUS = #{STATUS},
+			REMARK = #{REMARK},
+			DELETEFLAG = #{DELETEFLAG},
+			CREATETIME = #{CREATETIME},
+			UPDATETIME = #{UPDATETIME},
+			CREATORID = #{CREATORID},
+			UPDATERID = #{UPDATERID},
+		FEEDBACK_ID = FEEDBACK_ID
+		where 
+		FEEDBACK_ID = #{FEEDBACK_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			FEEDBACK_ID = #{FEEDBACK_ID}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 1=1
+		<if test="pd.keywords!= null and pd.keywords != ''"><!-- 关键词检索 -->
+			and
+				(
+				<!--	根据需求自己加检索条件
+					字段1 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+					 or 
+					字段2 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%') 
+				-->
+				)
+		</if>
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			FEEDBACK_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	<!-- 列表 -->
+	<select id="feedbacklistPage" parameterType="page" resultType="pd">
+		select
+			a.CONTENT,	
+			a.ACTORID,	
+			a.ADDRESS,	
+			a.ADDRESSLATITUDE,	
+			a.ADDRESSLONGITUDE,	
+			a.SENSELEVLE,	
+			a.STATUS,	
+			a.REMARK,	
+			a.DELETEFLAG,	
+			a.CREATETIME,	
+			a.UPDATETIME,	
+			a.CREATORID,	
+			a.UPDATERID,	
+			a.FEEDBACK_ID,
+			b.ACTORNAME
+		from 
+		<include refid="tableName"></include> a
+		left join 
+		<include refid="actorTableName"></include> b
+		on a.ACTORID=b.ACTOR_ID 
+		
+		where 1=1
+		<!-- 居民反馈  -->
+		<if test="pd.actorType=='100'.toString()">
+			and b.ACTORTYPE = #{pd.actorType}
+		</if>
+		<!-- 执法人员反馈  -->
+		<if test="pd.actorType=='200'.toString()">
+			and b.ACTORTYPE = #{pd.actorType}
+		</if>
+		
+		<!-- 只看自己的反馈  -->
+		<if test="pd.actorId != null and pd.actorId != ''">
+			and a.ACTORID = #{pd.actorId}
+		</if>
+		
+		<if test="pd.queryStartDate != null and pd.queryStartDate != '' and pd.queryFinishDate != null and pd.queryFinishDate != ''">
+			and a.UPDATETIME BETWEEN #{pd.queryStartDate} and #{pd.queryFinishDate}
+		</if>
+		
+		<if test="pd.senseLevleArr != null and pd.senseLevleArr.length > 0">
+			and	SENSELEVLE in
+			<foreach item="item" index="index" collection="pd.senseLevleArr" open="(" separator="," close=")">
+	                 #{pd.senseLevleArr[${index}]}
+			</foreach>
+		</if>
+		order by #{pd.sort} desc
+	</select>
+	
+	<!-- 按照feedbackId等条件查询反馈谢谢详细 -->
+	<select id="feedbackDetail" parameterType="pd" resultType="java.util.HashMap">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			FEEDBACK_ID = #{FEEDBACK_ID}
+	</select>
+	
+	
+	<!-- 列表 -->
+	<select id="getFeedbackByIdslistPage" parameterType="page" resultType="pd">
+		select
+			a.CONTENT,	
+			a.ACTORID,	
+			a.ADDRESS,	
+			a.ADDRESSLATITUDE,	
+			a.ADDRESSLONGITUDE,	
+			a.SENSELEVLE,	
+			a.STATUS,	
+			a.REMARK,	
+			a.DELETEFLAG,	
+			a.CREATETIME,	
+			a.UPDATETIME,	
+			a.CREATORID,	
+			a.UPDATERID,	
+			a.FEEDBACK_ID,
+			b.ACTORNAME
+		from 
+		<include refid="tableName"></include> a
+		left join 
+		<include refid="actorTableName"></include> b
+		on a.ACTORID=b.ACTOR_ID 
+		where 1=1
+		<!-- <if test="pd.feedbackIds != null and pd.feedbackIds != ''">
+			and	FEEDBACK_ID in( #{pd.feedbackIds} )
+		</if> -->
+		<if test="pd.feedbackIdArr != null and pd.feedbackIdArr.length > 0">
+			and	FEEDBACK_ID in
+			<foreach item="item" index="index" collection="pd.feedbackIdArr" open="(" separator="," close=")">
+	                 #{pd.feedbackIdArr[${index}]}
+			</foreach>
+		</if>
+		
+	</select>
+	
+	<!-- 用户信息反馈 统计-->
+	<select id="getFeedbackStatistic" parameterType="pd" resultType="pd">
+			SELECT
+			SENSELEVLE,
+			COUNT(SENSELEVLE) AS feedBackCount
+		FROM
+			<include refid="tableName"></include>
+		where 1=1 
+		<if test="queryStartDate != null and queryStartDate != '' and queryFinishDate != null and queryFinishDate != ''">
+			and CREATETIME BETWEEN #{queryStartDate} and #{queryFinishDate}
+		</if>
+		GROUP BY SENSELEVLE
+	</select>	
+	<!-- 313596790qq(青苔) -->
+</mapper>

@@ -1,0 +1,37 @@
+<@override name="popTitle"></@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-header">打印</div>
+            <div class="layui-card-body">
+                <input type="button" class="layui-btn" value="打印预览" onclick="openP()"/>&nbsp;如果点不开,换个浏览器试试
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table'], function(){
+    window.openP = function(){
+        layer.open({
+            type: 2,
+            title: '打印',
+            id: 'LAY_layui_Print',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['700px', '500px'],
+            content: ['${webPath}/tool/printPage.do','no']
+        });
+    }
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

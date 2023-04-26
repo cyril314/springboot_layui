@@ -1,0 +1,70 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body layui-row layui-col-space10">
+            <form class="layui-form" action="${webPath}/fhbutton/${msg}.do" id="role-form-element" method="post">
+                <input type="hidden" name="FHBUTTON_ID" id="FHBUTTON_ID" value="${pd.FHBUTTON_ID}"/>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">名称:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="NAME" lay-verify="required" autocomplete="off" placeholder="这里输入名称" class="layui-input" value="${pd.NAME}"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限标识:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="QX_NAME" lay-verify="required" autocomplete="off" placeholder="这里输入权限标识"
+                               class="layui-input" value="${pd.QX_NAME}" oninput="changecode(this.value)" id="QX_NAME"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注:</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="BZ" lay-verify="required" autocomplete="off" placeholder="这里输入备注" class="layui-input" value="${pd.BZ}"/>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">代码:</label>
+                    <div class="layui-input-block">
+                        <textarea id="code" name="code" class="layui-textarea" readonly="readonly" title="代码区,禁止手动输入"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="component-form-element" id="component-form-element">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table'], function(){
+    var $ = layui.$;
+    // 自定义可以被外部使用
+    window.changecode = function(value){
+        var str1 = '<#'+'if test="'+'$'+'{QX.';
+        var str2 = ' == 1 }">这里放按钮<'+'/#'+'if>';
+        $("#code").val(str1 + value +str2);
+    }
+
+    $(function() {
+        var str1 = '<#'+'if test="'+'$'+'{QX.'+$("#QX_NAME").val();
+        var str2 = ' == 1 }">这里放按钮<'+'/#'+'if>';
+        $("#code").val(str1+str2);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

@@ -1,0 +1,133 @@
+<@override name="popTitle">机构编辑</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body" style="padding: 15px;">
+            <form class="layui-form" action="${webPath}/department/${msg }.do" method="post" lay-filter="component-form-group">
+                <input type="hidden" name="DEPARTMENT_ID" value="${pd.DEPARTMENT_ID}"/>
+                <input type="hidden" name="PARENT_ID" value="${(null == pd.PARENT_ID) ? string(DEPARTMENT_ID,pd.PARENT_ID)}"/>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">上级：</label>
+                        <div class="layui-input-inline">
+                            <div class="layui-form-mid layui-word-aux">
+                                ${(null == pds.NAME) ? string('(无) 此部门为顶级',pds.NAME)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="NAME" id="NAME" value="${pd.NAME }" lay-verify="required"
+                                   placeholder="这里输入名称" maxlength="50" autocomplete="on" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">英文：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="NAME_EN" maxlength="50" value="${pd.NAME_EN}" lay-verify="required"
+                                   placeholder="这里输入英文" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">编码：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="BIANMA" name="BIANMA" value="${pd.BIANMA}" maxlength="32"
+                                   lay-verify="required" placeholder="这里输入编码 (不重复, 禁止修改)" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">负责人：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="HEADMAN" id="HEADMAN" value="${pd.HEADMAN }" lay-verify="required"
+                                   maxlength="32" placeholder="这里输入负责人" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">部门职能：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="FUNCTIONS" id="FUNCTIONS" value="${pd.FUNCTIONS }" lay-verify="required"
+                                   maxlength="32" placeholder="这里输入部门职能"  autocomplete="on" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">电话：</label>
+                        <div class="layui-input-inline">
+                            <input type="tel" name="TEL" value="${pd.TEL }" maxlength="32" lay-verify="phone"
+                                   placeholder="这里输入电话" maxlength="11" autocomplete="on" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">地址：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="SFID" lay-verify="identity" value="${pd.SFID }" maxlength="18"
+                                   autocomplete="on" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">备注：</label>
+                        <div class="layui-input-block">
+                            <textarea id="BZ" name="BZ" placeholder="这里输入备注" class="layui-textarea"
+                                      style="min-width: 515px;">${pd.BZ}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button class="layui-btn" lay-submit="" lay-filter="submit-form">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form;
+    $(document).ready(function(){
+        if($("#BIANMA").val()!=""){
+            $("#BIANMA").attr("readonly","readonly");
+        }
+    });
+    form.on('submit(submit-form)', function(obj){
+        var field = obj.field;
+        console.log(field);
+        if(field.BIANMA !== ''){
+            $.ajax({
+                type: "POST",
+                url: '${webPath}/department/hasBianma.do',
+                data: {BIANMA:field.BIANMA,tm:new Date().getTime()},
+                dataType:'json',
+                cache: false,
+                success: function(data){
+                    if("success" != data.result)
+                        layer.msg('编码'+field.BIANMA+'已存在,重新输入')
+                        $('#BIANMA').val('');
+                }
+            });
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

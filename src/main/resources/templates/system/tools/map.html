@@ -1,0 +1,115 @@
+<@override name="popTitle"></@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">地图</div>
+        <div class="layui-card-body" style="padding: 15px;">
+            <form class="layui-form" >
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">经度：</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="ZUOBIAO_Y1" name="ZUOBIAO_Y1" lay-verify="required" class="layui-input" readonly/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">纬度：</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="ZUOBIAO_X1" name="ZUOBIAO_X1" lay-verify="required" class="layui-input" readonly />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <a class="layui-btn" onclick="openMap(1)"><i class="layui-icon">&#xe715;</i></a>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">经度：</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="ZUOBIAO_Y2" name="ZUOBIAO_Y2" lay-verify="required" class="layui-input" readonly />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">纬度：</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="ZUOBIAO_X2" name="ZUOBIAO_X2" lay-verify="required" class="layui-input" readonly />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <a class="layui-btn" onclick="openMap(2)"><i class="layui-icon">&#xe715;</i></a>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">距离：</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="distance" class="layui-input" readonly />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn" lay-submit="" lay-filter="layui-btn-submit">计算</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form,layer = layui.layer;
+    window.openMap = function(id){
+        layer.open({
+            type: 2,
+            title: '地图',
+            id: 'LAY_layui_Map',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['700px', '500px'],
+            content: ['${webPath}/tool/mapXY.do','no'],
+            success: function (layero, index) {
+                // 获取子页面的iframe
+                var iframe = window['layui-layer-iframe' + index];
+                // 向子页面的全局函数child传参
+                iframe.params(id);
+            }
+        });
+    }
+
+    /* 监听提交 */
+    form.on('submit(layui-btn-submit)', function(obj){
+        var field = obj.field;
+        console.log(field);
+        $.ajax({
+            type: "POST",
+            url: '${webPath}/tool/getDistance.do',
+            data: {ZUOBIAO_X:field.ZUOBIAO_X1,ZUOBIAO_Y:field.ZUOBIAO_Y1,ZUOBIAO_X2:field.ZUOBIAO_X2,ZUOBIAO_Y2:field.ZUOBIAO_Y2,tm:new Date().getTime()},
+            dataType:'json',
+            cache: false,
+            success: function(data){
+                if("success" == data.result){
+                    if('null' == data.distance || null == data.distance){
+                        layer.msg(计算失败,参数有误);
+                        $("#distance").text("计算失败,参数有误");
+                    }else{
+                        layer.tips('计算结果', '#distance', {tips: [3, '#0FA6D8'],time:2000});
+                        $("#distance").val(data.distance);
+                    }
+                }else{
+                    layer.tips('计算失败,参数有误', '#distance', {tips: [3, '#0FA6D8'],time:2000});
+                    return;
+                }
+            }
+        });
+        return false;
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

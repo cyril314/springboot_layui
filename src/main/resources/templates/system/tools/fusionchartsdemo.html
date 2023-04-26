@@ -1,0 +1,17 @@
+<@override name="popTitle"></@override>
+
+<@override name="body">
+暂无实例，请根据charts自主完成
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table'], function(){
+
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

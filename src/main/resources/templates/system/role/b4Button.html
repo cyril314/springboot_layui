@@ -1,0 +1,73 @@
+<@override name="popTitle">按钮权限树</@override>
+
+<@override name="csslibs">
+<link type="text/css" rel="stylesheet" href="${webPath}/plugins/zTree/zTreeStyle.css"/>
+<script type="text/javascript" src="${webPath}/js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/zTree/jquery.ztree-2.6.min.js"></script>
+</@override>
+
+<@override name="CSS">#loading{width:400px;height:400px;margin:100px;}</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="col-xs-12">
+            <div id="zhongxin2" class="layui-col-xs6 layui-col-md12">
+                <div id="zhongxin" style="overflow: scroll; scrolling: yes;height:415px;width: 409px;">
+                    <ul id="tree" class="tree" style="overflow:auto;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none!important;">
+    <a id="LAY_zTree" onclick="save();">保存</a>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+var zTree;
+$(document).ready(function(){
+    var setting = {
+        showLine: true,
+        checkable: true
+    };
+    var zn = '${zTreeNodes}';
+    var zTreeNodes = eval(zn);
+    zTree = $("#tree").zTree(setting, zTreeNodes);
+});
+
+//保存
+function save(){
+    var nodes = zTree.getCheckedNodes();
+    var tmpNode;
+    var ids = "";
+    for(var i=0; i<nodes.length; i++){
+        tmpNode = nodes[i];
+        if(i!=nodes.length-1){
+            ids += tmpNode.id+",";
+        }else{
+            ids += tmpNode.id;
+        }
+    }
+    var msg = "${msg}";
+    var ROLE_ID = "${ROLE_ID}";
+    var url = "${webPath}/role/saveB4Button.do";
+    var postData;
+    postData = {"ROLE_ID":ROLE_ID,"menuIds":ids,"msg":msg};
+        $("#zhongxin").hide();
+        $("#zhongxin2").show();
+        $.post(url,postData,function(data){
+        layer.close(loading);
+        setTimeout( function(){
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            //提交 Ajax 成功后，关闭当前弹层并重载表格
+            parent.layer.close(index); //再执行关闭
+        }, 1 * 1000 );//延迟5000毫米
+    });
+}
+</@override>
+
+<@extends name="base/base.ftl"/>

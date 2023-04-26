@@ -1,0 +1,273 @@
+<@override name="popTitle"></@override>
+
+<@override name="csslibs">
+<!-- 树形下拉框start -->
+<script type="text/javascript" src="${webPath}/js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/selectTree.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/framework.js"></script>
+<link rel="stylesheet" type="text/css" href="${webPath}/plugins/selectZtree/import_fh.css"/>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/ztree/ztree.js"></script>
+<link type="text/css" rel="stylesheet" href="${webPath}/plugins/selectZtree/ztree/ztree.css"></link>
+<!-- 树形下拉框end -->
+</@override>
+
+<@override name="CSS">
+.layui-table td, .layui-table th {padding: 9px 5px;}
+</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card-body">
+            <form class="layui-form" action="${webPath}/staff/${msg }.do" method="post" lay-filter="component-form-group">
+                <input type="hidden" name="STAFF_ID" id="STAFF_ID" value="${pd.STAFF_ID}"/>
+                <input type="hidden" name="DEPARTMENT_ID" id="DEPARTMENT_ID" required="required" value="${pd.DEPARTMENT_ID}"/>
+                <table class="layui-table">
+                    <tbody>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">姓名:</td>
+                        <td>
+                            <input type="text" name="NAME" id="NAME" value="${pd.NAME}" maxlength="50" required="required"
+                                   placeholder="这里输入姓名" title="姓名" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">性别:</td>
+                        <td>
+                            <input type="checkbox" checked="" id="SEX" name="SEX" lay-skin="switch" lay-text="男|女"
+                                   value="${(pd.SEX=='男')?string('男','女')}" lay-filter="sex-switchTest" />
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">出生日期:</td>
+                        <td>
+                            <input class="layui-input setime" name="BIRTHDAY" id="BIRTHDAY" value="${pd.BIRTHDAY}" type="text"
+                                   required="required" readonly="readonly" placeholder="出生日期" title="出生日期" style="width:98%;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">英文:</td>
+                        <td>
+                            <input type="text" name="NAME_EN" id="NAME_EN" value="${pd.NAME_EN}" maxlength="50" required="required"
+                                   placeholder="这里输入英文" title="英文" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">婚否:</td>
+                        <td>
+                            <input type="checkbox" checked="" id="MARITAL" name="MARITAL" lay-skin="switch" lay-text="未婚|已婚"
+                                   value="${(pd.SEX=='未婚')?string('未婚','已婚')}" lay-filter="marital-switch" />
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">政治面貌:</td>
+                        <td>
+                            <input type="text" name="POLITICAL" id="POLITICAL" value="${pd.POLITICAL}" maxlength="30"
+                                   required="required" placeholder="这里输入政治面貌" title="政治面貌" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">员工编号:</td>
+                        <td><input type="text" name="BIANMA" id="BIANMA" value="${pd.BIANMA}" maxlength="100" placeholder="这里输入编码" title="编码" class="layui-input"/></td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">民族:</td>
+                        <td>
+                            <input type="text" name="NATION" id="NATION" value="${pd.NATION}" maxlength="10"
+                                   required="required" placeholder="这里输入民族" title="民族" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">入团时间:</td>
+                        <td>
+                            <input class="layui-input setime" name="PJOINTIME" id="PJOINTIME" value="${pd.PJOINTIME}" type="text"
+                                   required="required" readonly="readonly" placeholder="入团时间" title="入团时间" style="width:100%;"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">身份证号:</td>
+                        <td colspan="10">
+                            <input type="text" name="SFID" id="SFID" value="${pd.SFID}" maxlength="20" required="required"
+                                   placeholder="这里输入身份证号" title="身份证号" class="layui-input"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="layui-table">
+                    <tbody>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">所在部门:</td>
+                        <td>
+                            <div class="selectTree" id="selectTree"></div>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">所在岗位:</td>
+                        <td>
+                            <input type="text" name="POST" id="POST" value="${pd.POST}" maxlength="30" required="required"
+                                   placeholder="这里输入现岗位" title="现岗位" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">岗位类别:</td>
+                        <td>
+                            <input type="text" name="JOBTYPE" id="JOBTYPE" value="${pd.JOBTYPE}" maxlength="30"
+                                   required="required"  placeholder="这里输入岗位类别" title="岗位类别" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">工作职责:</td>
+                        <td colspan="10">
+                            <input type="text" name="FUNCTIONS" id="FUNCTIONS" value="${pd.FUNCTIONS}" maxlength="255"
+                                   required="required" placeholder="这里输入职责" title="职责" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">工作时间:</td>
+                        <td>
+                            <input class="layui-input setime" name="JOBJOINTIME" id="JOBJOINTIME" value="${pd.JOBJOINTIME}" type="text"
+                                   readonly="readonly" required="required" placeholder="首次参加工作时间" title="参加工作时间" />
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">入职时间:</td>
+                        <td>
+                            <input class="layui-input setime" name="DJOINTIME" id="DJOINTIME" value="${pd.DJOINTIME}" type="text"
+                                   readonly="readonly" required="required" placeholder="进本单位时间" title="进本单位时间" />
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">上岗时间:</td>
+                        <td>
+                            <input class="layui-input setime" name="POJOINTIME" id="POJOINTIME" value="${pd.POJOINTIME}" type="text"
+                                   readonly="readonly" required="required" placeholder="上岗时间" title="上岗时间" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="layui-table">
+                    <tbody>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">邮箱:</td>
+                        <td>
+                            <input type="text" name="EMAIL" id="EMAIL" value="${pd.EMAIL}" maxlength="50"
+                                   required="email|required" placeholder="这里输入邮箱" title="邮箱" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">电话:</td>
+                        <td colspan="10">
+                            <input type="text" name="TEL" id="TEL" value="${pd.TEL}" maxlength="11"
+                                required="phone|required" placeholder="这里输入电话" title="电话" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">籍贯:</td>
+                        <td colspan="10">
+                            <input type="text" name="FADDRESS" id="FADDRESS" value="${pd.FADDRESS}" maxlength="100"
+                                   required="required" placeholder="这里输入籍贯" title="籍贯" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">现住址:</td>
+                        <td colspan="10">
+                            <input type="text" name="ADDRESS" id="ADDRESS" value="${pd.ADDRESS}" maxlength="100"
+                                   required="required" placeholder="这里输入现住址" title="现住址" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">毕业学校:</td>
+                        <td>
+                            <input type="text" name="SCHOOL" id="SCHOOL" value="${pd.SCHOOL}" maxlength="30"
+                                   required="required" placeholder="这里输入毕业学校" title="毕业学校" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">最高学历:</td>
+                        <td>
+                            <input type="text" name="EDUCATION" id="EDUCATION" value="${pd.EDUCATION}" maxlength="10"
+                                   required="required" placeholder="这里输入学历" title="学历" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">专业:</td>
+                        <td>
+                            <input type="text" name="MAJOR" id="MAJOR" value="${pd.MAJOR}" maxlength="30"
+                                   required="required" placeholder="这里输入专业" title="专业" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">职业职称:</td>
+                        <td>
+                            <input type="text" name="FTITLE" id="FTITLE" value="${pd.FTITLE}" maxlength="30"
+                                   required="required" placeholder="这里输入职称" title="职称" class="layui-input"/>
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">资格证书:</td>
+                        <td colspan="10">
+                            <input type="text" name="CERTIFICATE" id="CERTIFICATE" value="${pd.CERTIFICATE}" maxlength="30"
+                                   required="required" placeholder="这里输入职业资格证" title="职业资格证" class="layui-input"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">合同时长:</td>
+                        <td>
+                            <input type="number" name="CONTRACTLENGTH" id="CONTRACTLENGTH" value="${pd.CONTRACTLENGTH}" maxlength="32"
+                                   required="number|required" placeholder="输入劳动合同时长" title="劳动合同时长" class="layui-input" style="display:inline;width:30%;"/>年
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">签订日期:</td>
+                        <td>
+                            <input class="layui-input setime" name="CSTARTTIME" id="CSTARTTIME" value="${pd.CSTARTTIME}" type="text"
+                                   readonly="readonly" required="required" placeholder="签订日期" title="签订日期" />
+                        </td>
+                        <td style="width:75px;text-align: right;padding-top: 13px;">终止日期:</td>
+                        <td>
+                            <input class="layui-input setime" name="CENDTIME" id="CENDTIME" value="${pd.CENDTIME}" type="text"
+                                   readonly="readonly" required="required" placeholder="终止日期" title="终止日期" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>备注:</td>
+                        <td colspan="100">
+                            <input type="text" name="BZ" value="${pd.BZ}" maxlength="255" required="required"
+                                   placeholder="这里输入备注" title="备注" id="BZ" class="layui-input">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button class="layui-btn" lay-submit="" lay-filter="submit-form">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+//下拉树
+function initComplete(){
+    var defaultNodes = {"treeNodes":${zTreeNodes}};
+    //绑定change事件
+    $("#selectTree").bind("change",function(){
+        if(!$(this).attr("relValue")){
+        //  top.Dialog.alert("没有选择节点");
+        }else{
+            //alert("选中节点文本："+$(this).attr("relText")+"<br/>选中节点值："+$(this).attr("relValue"));
+            $("#DEPARTMENT_ID").val($(this).attr("relValue"));
+        }
+    });
+    //赋给data属性
+    $("#selectTree").data("data",defaultNodes);
+    $("#selectTree").render();
+    $("#selectTree2_input").val("${(null==depname)?string('请选择',depname)}");
+}
+
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form', 'laydate'], function(){
+    var form = layui.form,laydate = layui.laydate;
+    //同时绑定多个
+    lay('.setime').each(function(){
+        laydate.render({
+            elem: this
+            ,trigger: 'click'
+        });
+    });
+    form.verify({
+        number : [/^[0-9]*$/, '必须输入正整数']
+    });
+    form.on('submit(submit-form)', function(obj){
+        var iSubmit = true;
+        var field = obj.field;
+        console.log(field);
+        if(field.DEPARTMENT_ID == ''){
+            layer.msg('请选择所在部门',{time:2*1000})
+            iSubmit = false;
+        }
+        return iSubmit;
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

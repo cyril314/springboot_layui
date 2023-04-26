@@ -1,0 +1,102 @@
+<@override name="popTitle">发送邮件</@override>
+
+<@override name="body">
+<div class="layui-form">
+    <textarea name="CONTENT" id="CONTENT" style="display:none" ></textarea>
+    <div class="layui-fluid" id="LAY-component-grid-mobile-pc">
+        <div class="layui-row layui-col-space12">
+            <div class="layui-col-xs10 layui-col-md10">
+                <textarea placeholder="这里不能手动修改" id="USERNAME" name="USERNAME"
+                          readonly="readonly" class="layui-input">${pd.username}</textarea>
+            </div>
+            <div class="layui-col-xs2 layui-col-md2">
+                <button class="layui-btn" lay-type="seek" title="搜索"><i class="layui-icon">&#xe615;</i></button>
+            </div>
+        </div>
+        <div class="layui-row" style="padding-top: 8px;">
+            <div class="layui-col-xs12 layui-col-md12">
+                <script id="editor" type="text/plain" style="width:568px;height:200px;"></script>
+            </div>
+        </div>
+        <div class="layui-row layui-col-space12">
+            <div class="layui-col-xs6 layui-col-md6">
+                <input type="radio" name="TYPE" value="1" title="纯文本" checked=""/>
+                <input type="radio" name="TYPE" value="2" title="带标签" />
+            </div>
+            <div class="layui-col-xs6 layui-col-md6">
+                <button class="layui-btn" lay-submit="" lay-filter="submit-form">提交</button>
+                <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="jslibs">
+<script type="text/javascript" src="${webPath}/plugins/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/ueditor/ueditor.all.js"></script>
+</@override>
+
+<@override name="JS">
+window.UEDITOR_HOME_URL = "${webPath}/plugins/ueditor/";
+var ue = UE.getEditor('editor');
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'site','form'], function(){
+    var layer = layui.layer, $ = layui.$, form = layui.form, site = layui.site, active = {
+        seek:function(){
+            var vals = $("#USERNAME").val();
+            layer.prompt({id:'seeks',title: '',value: vals, formType: 2,closeBtn: 0
+            , placeholder: '这里不能手动修改',caption:'这里不能手动修改',readonly:'readonly'}
+            , function(value, index, elem){
+                layer.close(index);
+            });
+        }
+    };
+    $('.layui-fluid .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+    form.on('submit(submit-form)', function(obj){
+        var field = obj.field;
+        if(field.TYPE=="1"){
+            $("#CONTENT").val(ue.getContentTxt());
+        }else{
+            $("#CONTENT").val(ue.getContent());
+        }
+        if($("#CONTENT").val()==""){
+            layer.msg('请输入内容',{time:3*1000})
+            return false;
+        }
+        var USERNAME = $("#USERNAME").val();
+        var CONTENT = $("#CONTENT").val();
+        $.ajax({
+            type: "POST",
+            url: '${webPath}/fhsms/save.do?tm='+new Date().getTime(),
+            data: {USERNAME:USERNAME,CONTENT:CONTENT},
+            dataType:'json',
+            //beforeSend: validateData,
+            cache: false,
+            success: function(data){
+                $.each(data.list, function(i, list){
+                    if(list.msg == 'ok'){
+                        var msg = '成功发出'+list.count+'条,失败'+list.ecount+'条';
+                        layer.msg(msg,{time:11*1000})
+                    }else{
+                        layer.msg('发送失败,请联系管理员!',{time:1*1000})
+                    }
+                    setTimeout( function(){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }, 1 * 1000 );//延迟5000毫米
+                });
+            }
+        });
+        return false;
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

@@ -1,0 +1,142 @@
+<@override name="popTitle">机构编辑</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body" style="padding: 15px;">
+        <form class="layui-form" action="${webPath}/imgmsg/${msg }.do" method="post" lay-filter="component-form-group">
+            <input type="hidden" name="COMMAND_ID" id="COMMAND_ID" value="${pd.COMMAND_ID}"/>
+
+            <table class="layui-table">
+                <tbody>
+                    <tr>
+                        <td>关键词：</td>
+                        <td>
+                            <input type="text" name="KEYWORD" id="KEYWORD" value="${pd.KEYWORD }" lay-verify="required"
+                                   placeholder="这里输入关键词" maxlength="50" autocomplete="on" class="layui-input" />
+                        </td>
+                        <td>备注：</td>
+                        <td>
+                            <input type="text" name="BZ" value="${pd.BZ }" lay-verify="required"
+                                   maxlength="32" placeholder="这里输入备注" class="layui-input" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <blockquote class="layui-elem-quote layui-form-item">
+                第一行必录, 总共可以添加8条图文, 只录入第一条是显示单条图文, 录入其它则显示多条图文
+            </blockquote>
+            <table class="layui-table">
+                <tbody>
+                <tr>
+                    <td><input type="text" class="layui-input" lay-verify="required" name="TITLE1" value="${pd.TITLE1}" maxlength="200" placeholder="这里输入标题1" title="标题1"/></td>
+                    <td><input type="text" class="layui-input" lay-verify="required" name="DESCRIPTION1" value="${pd.DESCRIPTION1}" maxlength="200" placeholder="这里输入描述1" title="描述1"/></td>
+                    <td><input type="text" class="layui-input" lay-verify="required" name="IMGURL1" id="IMGURL1" value="${pd.IMGURL1}" maxlength="200" placeholder="这里输入图片地址(完整路径)1" title="图片地址1"/></td>
+                    <td><input type="text" class="layui-input" lay-verify="required" name="TOURL1" id="TOURL1" value="${pd.TOURL1}" maxlength="200" placeholder="这里输入超链接1" title="超链接1"/></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="layui-input" name="TITLE2" value="${pd.TITLE2}" maxlength="200" placeholder="这里输入标题2" /></td>
+                    <td><input type="text" class="layui-input" name="DESCRIPTION2" value="${pd.DESCRIPTION2}" maxlength="200" placeholder="这里输入描述2" /></td>
+                    <td><input type="text" class="layui-input" name="IMGURL2" id="IMGURL2" value="${pd.IMGURL2}" maxlength="200" placeholder="这里输入图片地址(完整路径)2" /></td>
+                    <td><input type="text" class="layui-input" name="TOURL2" value="${pd.TOURL2}" maxlength="200" placeholder="这里输入超链接2" /></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="layui-input" name="TITLE3" value="${pd.TITLE3}" maxlength="200" placeholder="这里输入标题3" /></td>
+                    <td><input type="text" class="layui-input" name="DESCRIPTION3" value="${pd.DESCRIPTION3}" maxlength="200" placeholder="这里输入描述3" /></td>
+                    <td><input type="text" class="layui-input" name="IMGURL3" value="${pd.IMGURL3}" maxlength="200" placeholder="这里输入图片地址(完整路径)3" /></td>
+                    <td><input type="text" class="layui-input" name="TOURL3" value="${pd.TOURL3}" maxlength="200" placeholder="这里输入超链接3" /></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="layui-input" name="TITLE4" value="${pd.TITLE4}" maxlength="200" placeholder="这里输入标题4" /></td>
+                    <td><input type="text" class="layui-input" name="DESCRIPTION4" value="${pd.DESCRIPTION4}" maxlength="200" placeholder="这里输入描述4" /></td>
+                    <td><input type="text" class="layui-input" name="IMGURL4" value="${pd.IMGURL4}" maxlength="200" placeholder="这里输入图片地址(完整路径)4" /></td>
+                    <td><input type="text" class="layui-input" name="TOURL4" value="${pd.TOURL4}" maxlength="200" placeholder="这里输入超链接4" /></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="layui-input" name="TITLE5" value="${pd.TITLE5}" maxlength="200" placeholder="这里输入标题5" /></td>
+                    <td><input type="text" class="layui-input" name="DESCRIPTION5" value="${pd.DESCRIPTION5}" maxlength="200" placeholder="这里输入描述5" /></td>
+                    <td><input type="text" class="layui-input" name="IMGURL5" value="${pd.IMGURL5}" maxlength="200" placeholder="这里输入图片地址(完整路径)5" /></td>
+                    <td><input type="text" class="layui-input" name="TOURL5" value="${pd.TOURL5}" maxlength="200" placeholder="这里输入超链接5" /></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="layui-input" name="TITLE6" value="${pd.TITLE6}" maxlength="200" placeholder="这里输入标题6" /></td>
+                    <td><input type="text" class="layui-input" name="DESCRIPTION6" value="${pd.DESCRIPTION6}" maxlength="200" placeholder="这里输入描述6" /></td>
+                    <td><input type="text" class="layui-input" name="IMGURL6" value="${pd.IMGURL6}" maxlength="200" placeholder="这里输入图片地址(完整路径)6" /></td>
+                    <td><input type="text" class="layui-input" name="TOURL6" value="${pd.TOURL6}" maxlength="200" placeholder="这里输入超链接6" /></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="layui-input" name="TITLE7" value="${pd.TITLE7}" maxlength="200" placeholder="这里输入标题7" /></td>
+                    <td><input type="text" class="layui-input" name="DESCRIPTION7" value="${pd.DESCRIPTION7}" maxlength="200" placeholder="这里输入描述7" /></td>
+                    <td><input type="text" class="layui-input" name="IMGURL7" value="${pd.IMGURL7}" maxlength="200" placeholder="这里输入图片地址(完整路径)7" /></td>
+                    <td><input type="text" class="layui-input" name="TOURL7" value="${pd.TOURL7}" maxlength="200" placeholder="这里输入超链接7" /></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="layui-input" name="TITLE8" value="${pd.TITLE8}" maxlength="200" placeholder="这里输入标题8" /></td>
+                    <td><input type="text" class="layui-input" name="DESCRIPTION8" value="${pd.DESCRIPTION8}" maxlength="200" placeholder="这里输入描述8" /></td>
+                    <td><input type="text" class="layui-input" name="IMGURL8" value="${pd.IMGURL8}" maxlength="200" placeholder="这里输入图片地址(完整路径)8" /></td>
+                    <td><input type="text" class="layui-input" name="TOURL8" value="${pd.TOURL8}" maxlength="200" placeholder="这里输入超链接8" /></td>
+                </tr>
+
+                <tr>
+                    <td>状态：</td>
+                    <td colspan="100" class="">
+                        <input type="checkbox" lay-skin="switch" name="STATUS" value="${(pd.STATUS==2)?string('2','1')}"
+                               lay-filter="switchTest" ${(pd.STATUS=='2')?string('','checked')} lay-text="有效|无效" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button class="layui-btn" lay-submit="" lay-filter="submit-form">提交</button>
+                        <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form','table'], function(){
+    var $ = layui.$,form = layui.form, table = layui.table;
+    form.on('switch(switchTest)', function(data){
+        $(data.elem).attr('type', 'hidden').val(this.checked ? 1 : 2);
+    });
+    form.on('submit(submit-form)', function(obj){
+        var iSubmit = true;
+        var field = obj.field;
+        if(field.KEYWORD !== ''){
+            $.ajax({
+                type: "POST",
+                url: '${webPath}/textmsg/hasK.do',
+                data: {KEYWORD:field.KEYWORD,IMGMSG_ID:field.IMGMSG_ID,tm:new Date().getTime()},
+                dataType:'json',
+                async: false,
+                cache: false,
+                success: function(data){
+                    if("success" != data.result){
+                        $('#KEYWORD').val('');
+                        layer.msg('此关键词已存在(全局)!',{time:5*1000})
+                        iSubmit = false;
+                    }
+                }
+            });
+        }
+        return iSubmit;
+    });
+    $(document).on('click','#cancel-form',function(){
+        window.history.go(-1);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

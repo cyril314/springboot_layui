@@ -1,0 +1,82 @@
+<@override name="popTitle"></@override>
+
+<@override name="csslibs">
+<!-- 树形下拉框start -->
+<script type="text/javascript" src="${webPath}/js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/selectTree.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/framework.js"></script>
+<link rel="stylesheet" type="text/css" href="${webPath}/plugins/selectZtree/import_fh.css"/>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/ztree/ztree.js"></script>
+<link type="text/css" rel="stylesheet" href="${webPath}/plugins/selectZtree/ztree/ztree.css"></link>
+<!-- 树形下拉框end -->
+</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-card">
+            <form class="layui-form" action="${webPath}/datajur/${msg }.do" method="post" >
+                <div class="layui-card-header">输入框</div>
+                <div class="layui-card-body layui-row layui-col-space10">
+                    <div class="layui-col-md12">
+                        <input type="text" name="title" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </form>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button class="layui-btn" lay-submit="" lay-filter="submit-form">确定</button>
+                        <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+function initComplete(){
+    //下拉树
+    var defaultNodes = {"treeNodes":${zTreeNodes}};
+    //绑定change事件
+    $("#selectTree").bind("change",function(){
+        if(!$(this).attr("relValue")){
+            //  top.Dialog.alert("没有选择节点");
+        }else{
+            //alert("选中节点文本："+$(this).attr("relText")+"<br/>选中节点值："+$(this).attr("relValue"));
+            $("#DEPARTMENT_ID").val($(this).attr("relValue"));
+        }
+    });
+    //赋给data属性
+    $("#selectTree").data("data",defaultNodes);
+    $("#selectTree").render();
+    $("#selectTree2_input").val("${pd.NAME}");
+}
+
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form;
+    form.on('submit(submit-form)', function(obj){
+        var iSubmit = true;
+        var field = obj.field;
+        console.log(field);
+        if(field.DEPARTMENT_ID == ''){
+            layer.msg('请选择所在部门',{time:2*1000})
+            iSubmit = false;
+        }
+        return iSubmit;
+    });
+
+    $(document).on('click','#cancel-form',function(){
+        var index=layer.getFrameIndex(window.name);
+        layer.close(index);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

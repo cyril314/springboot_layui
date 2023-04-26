@@ -1,0 +1,257 @@
+﻿<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid" id="component-tabs">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab layui-tab-brief" lay-filter="component-tabs-brief">
+                        <ul class="layui-tab-title" id="LAY_ROLE">
+                            <#if QX.add == 1>
+                                <button class="layui-btn layui-btn-primary layui-btn-sm" lay-data="0" lay-type="addGroup">
+                                    <i class="layui-icon">&#xe654;</i> 新增组</button>
+                            </#if>
+                            <#if roleList!>
+                                <#list roleList as role>
+                                    <#if role_index = 0>
+                                        <li class="layui-this" value="${role.ROLE_ID }">${role.ROLE_NAME }</li>
+                                    <#else>
+                                        <li value="${role.ROLE_ID }">${role.ROLE_NAME }</li>
+                                    </#if>
+                                </#list>
+                            <#else>
+                                <li>没有相关数据</li>
+                            </#if>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-btn-container">
+                                <i class="layui-btn-xs">本组：</i>
+                                <#if QX.edit == 1>
+                                    <button class="layui-btn layui-btn-sm" lay-data="${pd.ROLE_ID}" lay-type="editGroupName">修改组名称</button>
+                                </#if>
+                                <#if pd.ROLE_ID == '99'>
+                                <#else>
+                                    <#if QX.edit == 1>
+                                        <button class="layui-btn layui-btn-sm layui-btn-purple" lay-data="${pd.ROLE_ID}" lay-type="editGroupQuan">组菜单权限</button>
+                                    </#if>
+                                </#if>
+                                <#if pd.ROLE_ID == '1' || pd.ROLE_ID == '2'>
+                                <#else>
+                                    <#if QX.del == 1>
+                                        <button class="layui-btn layui-btn-sm layui-btn-danger" lay-data="${pd.ROLE_ID}" lay-type="delGroup">删除</button>
+                                    </#if>
+                                </#if>
+                                <#if QX.add == 1>
+                                    <button class="layui-btn layui-lay-btn layui-btn-primary layui-btn-sm" lay-data="${pd.ROLE_ID}" lay-type="addRole">
+                                        <i class="layui-icon">&#xe654;</i> 新增</button>
+                                </#if>
+                            </div>
+                            <table class="layui-hide" id="test-table-toolbar" lay-filter="test-table-toolbar"></table>
+
+                            <script type="text/html" id="zizeng">
+                                {{d.LAY_TABLE_INDEX+1}}
+                            </script>
+                            <script type="text/html" id="toolbar-add">
+                                <i class="layui-icon layui-btn layui-btn-warm layui-btn-xs" lay-event="roleBtn" data-value="add_qx">&#xe6ae;</i>
+                            </script>
+                            <script type="text/html" id="toolbar-edit">
+                                <i class="layui-icon layui-btn layui-btn-warm layui-btn-xs" lay-event="roleBtn" data-value="del_qx">&#xe6ae;</i>
+                            </script>
+                            <script type="text/html" id="toolbar-del">
+                                <i class="layui-icon layui-btn layui-btn-warm layui-btn-xs" lay-event="roleBtn" data-value="edit_qx">&#xe6ae;</i>
+                            </script>
+                            <script type="text/html" id="toolbar-cha">
+                                <i class="layui-icon layui-btn layui-btn-warm layui-btn-xs" lay-event="roleBtn" data-value="cha_qx">&#xe6ae;</i>
+                            </script>
+                            <script type="text/html" id="test-table-toolbar-barDemo">
+                                <a class="layui-btn layui-btn-purple layui-btn-xs" lay-event="add">菜单权限</a>
+                                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+    layui.config({
+        base: '${webPath}/'
+    }).extend({
+        index: 'js/index'
+    }).use(['index', 'table','form', 'site'], function(){
+        var table = layui.table,site = layui.site,form = layui.form,$ = layui.$
+        ,_c ={
+            common: function(_url,_title){
+                layer.open({
+                    type: 2,
+                    title: _title,
+                    id: 'LAY_layuipro',
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['500px', '195px'],
+                    content: _url,
+                    btn: ['确定', '取消'],
+                    yes: function(index, layero){
+                        var _submit = layero.find('iframe').contents().find("#component-form-element");
+                        _submit.click();
+                    }
+                });
+            }
+        },
+        active = {
+            addRole: function(e){
+                var pid = $(this).attr("lay-data");
+                var url = '${webPath}/role/toAdd.do?parent_id='+pid;
+                _c.common(url,'添加角色');
+            },editGroupName: function(){
+                var _id = $(this).attr("lay-data");
+                var url = '${webPath}/role/toEdit.do?ROLE_ID='+_id;
+                _c.common(url,'编辑角色');
+            },editGroupQuan: function(){ //权限树
+                var _id = $(this).attr("lay-data");
+                layer.open({
+                    type: 2,
+                    title: '菜单权限',
+                    id: 'LAY_layuiTree',
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['300px', '500px'],
+                    content: ['${webPath}/role/menuqx.do?ROLE_ID='+_id, 'no'],
+                    btn: ['确定', '取消'],
+                    yes: function(index, layero){
+                        var _submit = layero.find('iframe').contents().find("#LAY_zTree");
+                        _submit.click();
+                    }
+                });
+            },addGroup: function(){
+                var pid = $(this).attr("lay-data");
+                var url = '${webPath}/role/toAdd.do?parent_id='+pid;
+                _c.common(url,'添加组');
+            },delGroup: function(){
+                layer.confirm('真的删除行么', function(index){
+                    site.post("${webPath}/role/delete.do",{ROLE_ID:_data.rOLE_ID,guid:new Date().getTime()},function(data){
+                        if("success" == data.result){
+                            location.reload();
+                            layer.close(index);
+                        }else if("false" == data.result){
+                            layer.alert('删除失败，请先删除下级角色!');
+                        }else if("false2" == data.result){
+                            layer.alert('删除失败，此角色已被使用!');
+                        }
+                    });
+                });
+            }
+        };
+
+        $('.layui-card-body .layui-btn').on('click', function(){
+            var type = $(this).attr("lay-type");
+            active[type] ? active[type].call(this) : '';
+        });
+
+        table.render({
+            elem: '#test-table-toolbar'
+            ,url: '${webPath}/role/getRole'
+            ,title: '角色数据表'
+            ,cellMinWidth: 60 //全局定义常规单元格的最小宽度
+            ,cols: [[
+                {field:'id', title:'序号',templet:'#zizeng'}
+                ,{field:'rOLE_NAME', title:'角色', edit: 'text',align: 'center'}
+                ,{field:'', title:'增', toolbar: '#toolbar-add',align: 'center'}
+                ,{field:'', title:'删', toolbar: '#toolbar-del',align: 'center'}
+                ,{field:'', title:'改', toolbar: '#toolbar-edit',align: 'center'}
+                ,{field:'', title:'查', toolbar: '#toolbar-cha',align: 'center'}
+                ,{fixed:'right', title:'操作', width:'25%', toolbar: '#test-table-toolbar-barDemo',align: 'center'}
+            ]]
+            ,parseData: function(res){ //res 即为原始返回的数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "data": res.roleList_z //解析数据列表
+                };
+            }
+        });
+
+        $("#LAY_ROLE li").on('click', function(obj){
+            var id = $(this).attr("value");
+            table.reload("test-table-toolbar", {
+                where: {ROLE_ID: id }
+            });
+        });
+
+        //监听行工具事件
+        table.on('tool(test-table-toolbar)', function(obj){
+            var _data = obj.data;
+            if(obj.event === 'add'){
+                layer.open({
+                    type: 2,
+                    title: '菜单权限',
+                    id: 'LAY_layuiTree',
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['300px', '500px'],
+                    content: ['${webPath}/role/menuqx.do?ROLE_ID='+_data.rOLE_ID, 'no'],
+                    btn: ['确定', '取消'],
+                    yes: function(index, layero){
+                        var _submit = layero.find('iframe').contents().find("#LAY_zTree");
+                        _submit.click();
+                    }
+                });
+            }else if(obj.event === 'del'){
+                layer.confirm('真的删除行么', function(index){
+                    site.post("${webPath}/role/delete.do",{ROLE_ID:_data.rOLE_ID,guid:new Date().getTime()},function(data){
+                        if("success" == data.result){
+                            obj.del();
+                            var _id = $("#LAY_ROLE .layui-this").attr("value");
+                            table.reload("test-table-toolbar", {
+                                where: {ROLE_ID: _id }
+                            });
+                            layer.close(index);
+                        }else if("false" == data.result){
+                            layer.alert('删除失败，请先删除下级角色!');
+                        }else if("false2" == data.result){
+                            layer.alert('删除失败，此角色已被使用!');
+                        }
+                    });
+                });
+            } else if(obj.event === 'edit'){
+                var url = '${webPath}/role/toEdit.do?ROLE_ID='+_data.rOLE_ID;
+                _c.common(url,'编辑角色');
+
+            } else if(obj.event === 'roleBtn'){
+                var _msg = $(this).attr("data-value"),Title='';
+                if(_msg == 'add_qx'){
+                    Title = "授权新增权限(此角色下打勾的菜单拥有新增权限)";
+                }else if(_msg == 'del_qx'){
+                    Title = "授权删除权限(此角色下打勾的菜单拥有删除权限)";
+                }else if(_msg == 'edit_qx'){
+                    Title = "授权修改权限(此角色下打勾的菜单拥有修改权限)";
+                }else if(_msg == 'cha_qx'){
+                    Title = "授权查看权限(此角色下打勾的菜单拥有查看权限)";
+                }
+                layer.open({
+                    type: 2,
+                    title: Title,
+                    id: 'LAY_Role_Tree',
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['404px', '500px'],
+                    content: ['${webPath}/role/b4Button.do?ROLE_ID='+_data.rOLE_ID+'&msg='+_msg, 'no'],
+                    btn: ['确定', '取消'],
+                    yes: function(index, layero){
+                        var _submit = layero.find('iframe').contents().find("#LAY_zTree");
+                        _submit.click();
+                    }
+                });
+            }
+        });
+    });
+</@override>
+
+<@extends name="base/base.ftl"/>

@@ -1,0 +1,45 @@
+<@override name="popTitle">添加角色</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+	<div class="layui-card">
+		<div class="layui-card-body layui-row layui-col-space10">
+			<form class="layui-form" action="${webPath}/brdb/${msg}.do" id="role-form-element" method="post">
+                <input type="hidden" name="DB_ID" id="DB_ID" value="${pd.DB_ID}"/>
+                <div class="layui-form-item">
+                    <div class="layui-col-md12">
+                        <textarea rows="5" cols="" name="BZ" id="BZ" title="备注" style="width:98%;" >${pd.BZ}</textarea>
+                    </div>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-input-block">
+						<button class="layui-btn" lay-submit lay-filter="component-form-element" id="component-form-element">立即提交</button>
+						<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+	base: '${webPath}/' //静态资源所在路径
+}).extend({
+	index: 'js/index' //主入口模块
+}).use(['index','form'], function(){
+		var form = layui.form;
+		//监听提交
+		form.on('submit(component-form-element)', function(data){
+		var field = data.field; //获取提交的字段
+		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		//提交 Ajax 成功后，关闭当前弹层并重载表格
+		parent.layer.close(index); //再执行关闭
+	});
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

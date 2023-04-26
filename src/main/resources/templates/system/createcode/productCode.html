@@ -1,0 +1,328 @@
+<@override name="popTitle"></@override>
+
+<@override name="CSS">
+.rickyOutlineBorder{padding:6px;}
+.rickyOutlineBorder:after{content:"";display:block;clear:both;}
+.rickyOutlineBorder .linetemplate{float:left;}
+.rickyOutlineBorder .layui-form-label{width:56px;}
+.rickyOutlineBorder .layui-input-block{margin-left:87px;}
+.rickyOutlineBorder .layui-form-radio{margin-right:5px;padding-right:0}
+.rickyOutlineBorder .layui-form-radio>i{margin-right:2px}
+.rickyOutlineBorder .layui-form-mid{margin-right:2px;}
+.rickyOutlineBorder .layui-form-item .layui-input-inline{margin-right:2px;}
+.rickyWarning{color:red;padding:5px 25px;font-size:16px;font-weight:bold;}
+</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body" style="padding: 15px;">
+            <form class="layui-form" action="${webPath}/createCode/proCode.do" method="post" id="formId">
+                <input type="hidden" name="zindex" id="zindex" value="0">
+                <input type="hidden" name="FIELDLIST" id="FIELDLIST" value="">
+                <input type="hidden" name="faobject" id="faobject" value="">
+                <div class="layui-form-item">
+                    <div class="layui-col-sm2"><label class="layui-form-label">模块说明：</label></div>
+                    <div class="layui-col-sm4">
+                        <input class="layui-input" type="text" name="TITLE" id="TITLE" value="${pd.TITLE }"
+                               lay-verify="required" placeholder="这里输入模块说明内容" title="说明"/>
+                    </div>
+                    <div class="layui-col-sm2"><label class="layui-form-label">模块类型：</label></div>
+                    <div class="layui-col-sm2">
+                        <select name="FHTYPE" id="FHTYPE" lay-filter="selectType">
+                            <option value="single">单表</option>
+                            <option value="tree">树形</option>
+                            <option value="fathertable">主表</option>
+                            <option value="sontable">明细表</option>
+                        </select>
+                    </div>
+                    <div class="layui-col-sm2">
+                        <select name="faobjectid" id="faobjectid" lay-filter="selectFa" disabled="disabled">
+                            <option value="">选择主表</option>
+                            <#list varList as var>
+                            <option value="${var.CREATECODE_ID }">${var.OBJECTNAME}</option>
+                            </#list>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-col-sm2"><label class="layui-form-label">上级包名：</label></div>
+                    <div class="layui-col-sm5">
+                        <input class="layui-input" type="text" name="packageName" id="packageName" value="${pd.PACKAGENAME }"
+                               lay-verify="required" placeholder="输入包名(不要输入特殊字符,请用纯字母)" title="包名称(不要输入特殊字符,请用纯字母)"/>
+                    </div>
+                    <div class="layui-col-sm5">
+                        <div class="layui-word-aux" style="line-height: 20px;">
+                            例如:com.aim.controller.<font color="red" style="font-weight: bold;">system</font>&nbsp;&nbsp;只输入红色部分
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-col-sm2"><label class="layui-form-label">处理类名：</label></div>
+                    <div class="layui-col-sm3">
+                        <input class="layui-input" type="text" name="objectName" id="objectName" value="${pd.OBJECTNAME }"
+                               lay-verify="required" placeholder="这里输入处理类名称" title="类名称"/>
+                    </div>
+                    <div class="layui-col-sm3">
+                        <div class="layui-word-aux" style="line-height: 20px;">
+                            <font color="red" style="font-weight: bold;">类名首字母必须为大写字母或下划线</font>
+                        </div>
+                    </div>
+                    <div class="layui-col-sm2"><label class="layui-form-label">上级包名：</label></div>
+                    <div class="layui-col-sm2">
+                        <input class="layui-input" type="text" name="tabletop" id="tabletop" placeholder="这里输入表前缀"
+                               title="表前缀" value="${(msg == 'add') ? string('TB_' , '')}${pd.TABLENAME?split(',fh,')[0]}"/>
+                    </div>
+                </div>
+            </form>
+            <div class="layui-form-item">
+                <table class="layui-hide" id="demo" lay-filter="test-table-toolbar"></table>
+                <script type="text/html" id="zizeng">
+                    {{d.LAY_TABLE_INDEX+1}}
+                </script>
+                <script type="text/html" id="test-table-toolbar-barDemo">
+                    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                </script>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button class="layui-btn layui-btn-primary" id="add-form" ><i class="layui-icon">&#xe654;</i>添加</button>
+                        <button class="layui-btn" lay-submit="" lay-filter="submit-form"><i class="layui-icon">&#xe714;</i>生成</button>
+                        <button class="layui-btn layui-btn-danger" id="cancel-form"><i class="layui-icon">&#xe65c;</i>取消</button>
+                    </div>
+                </div>
+            </div>
+            <div style="display:none!important;" id="add-form-div">
+                <div class="rickyOutlineBorder">
+                    <form class="layui-form" action="">
+                        <div class="linetemplate">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">属性名</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="dname" lay-verify="required" autocomplete="off" title="属性名"
+                                           placeholder="首字母必须为字母或下划线" class="layui-input" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="linetemplate">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">属性类型</label>
+                                <div class="layui-input-block">
+                                    <input type="radio" name="dtype" value="String" title="String" checked="" />
+                                    <input type="radio" name="dtype" value="date" title="date" />
+                                    <input type="radio" name="dtype" value="Integer" title="Integer" />
+                                    <input type="radio" name="dtype" value="Double" title="double" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="linetemplate">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">其备注</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="dbz" lay-verify="required" autocomplete="off" title="备注"
+                                           placeholder="例如 name的备注为 '姓名'" class="layui-input" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="linetemplate">
+                            <div class="linetemplate">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">前台录入</label>
+                                    <div class="layui-input-block">
+                                        <input type="radio" name="isQian" value="是" title="是" checked="">
+                                        <input type="radio" name="isQian" value="否" title="否">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="linetemplate">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label" style="width:30px;">长度</label>
+                                    <div class="layui-input-block" style="margin-left:60px;">
+                                        <div class="layui-input-inline" style="width: 63px;">
+                                            <input type="number" id="flength" name="flength" placeholder="长度"
+                                                   title="长度" class="layui-input" />
+                                        </div>
+                                        <div class="layui-form-mid">.</div>
+                                        <div class="layui-input-inline" style="width: 64px;">
+                                            <input name="decimal" id="decimal" type="number" placeholder="小数"
+                                                   title="类型为Double时有效" class="layui-input"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="linetemplate">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">引字典</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="dictionariesid" autocomplete="off"
+                                           placeholder="(非必录)" class="layui-input" disabled="disabled"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="linetemplate">
+                            <div class="layui-form-item" style="margin-left: 5px;">
+                                <a class="layui-btn" href="javascript:;"><i class="layui-icon">&#xe615;</i></a>
+                                <a class="layui-btn" href="javascript:;">清</a>
+                                <font color="orange" style="font-weight: bold;">[选择父级 ，子一级作为下拉菜单]</font>
+                            </div>
+                        </div>
+                        <div class="linetemplate">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">默认值</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <p class="rickyWarning">注意：</p>
+                            <p class="rickyWarning">1:请不要添加  XX_ID 的主键，系统自动生成一个32位无序不重复字符序列作为主键</p>
+                            <p class="rickyWarning">2:主键为  类名_ID 格式，所有字段的字母均用大写</p>
+                        </div>
+                        <div class="linetemplate">
+                            <div class="layui-form-item layui-hide">
+                                <button class="layui-btn" lay-submit="" id="lay-from-div">确定</button>
+                                <button type="button" id="lay-from-cancel" class="layui-btn layui-btn-primary">取消</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table', 'form'], function(){
+    var layer = layui.layer, form = layui.form,table = layui.table, $ = layui.$;
+    //选择类型
+    form.on('select(selectType)', function(data){
+        if("sontable" == data.value){
+            $("#faobjectid").removeAttr("disabled");
+        }else{
+            $("#faobjectid").attr("disabled","disabled");
+            $("#faobjectid").val("");
+            inpOpen();
+        };
+        form.render();
+    });
+
+    //input启用
+    window.inpOpen = function(){
+        $("#TITLE").removeAttr("readonly");
+        $("#tabletop").removeAttr("readonly");
+        $("#objectName").removeAttr("readonly");
+        $("#packageName").removeAttr("readonly");
+    }
+
+    //input禁用
+    window.inpClose = function(){
+        $("#TITLE").attr("readonly","readonly");
+        $("#tabletop").attr("readonly","readonly");
+        $("#packageName").attr("readonly","readonly");
+        $("#objectName").attr("readonly","readonly");
+    }
+
+    //选择主表
+    form.on('select(selectFa)', function(data){
+    console.log(data);
+        if("" != data.value){
+            inpClose();
+            $.ajax({
+                type: "POST",
+                url: '${webPath}/createCode/findById.do',
+                data: {CREATECODE_ID:data.value,tm:new Date().getTime()},
+                dataType:'json',
+                cache: false,
+                success: function(data){
+                    $("#TITLE").val(data.pd.TITLE + '(明细)');
+                    $("#packageName").val(data.pd.PACKAGENAME);
+                    $("#objectName").val(data.pd.OBJECTNAME+"Mx");
+                    var tb = data.pd.TABLENAME.split(",fh,");
+                    $("#tabletop").val(tb[0]);
+                    $("#faobject").val(data.pd.OBJECTNAME);
+                }
+            });
+        }else{
+            inpOpen();
+        }
+    });
+    $(document).on('click','#cancel-form',function(){
+        var index=parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index);
+    });
+    var openIndex;
+    $(document).on('click','#lay-from-cancel',function(){
+        parent.layer.close(openIndex)
+    });
+    $(document).on('click','#add-form',function(){
+        openIndex = layer.open({
+            type: 1,
+            id: 'LAY_layui_DATA_DIV',
+            title: false,
+            closeBtn: 0,
+            shadeClose: true,
+            btn: ['确定', '取消'], //可以无限个按钮
+            area: ['700px','400px'],
+            content: $('#add-form-div'),
+            yes: function(index, layero){
+                var _submit = layero.find('div').contents().find("#lay-from-div");
+                _submit.click();
+            }
+        });
+    });
+    // 表格生成
+    function dataList(){
+        if(${pd.FIELDLIST == null}){
+            return [];
+        }
+        return ${pd.FIELDLIST };
+    }
+    table.render({
+        elem: '#demo'
+        ,cols: [[
+            {field:'', title: '序号',templet:'#zizeng'}
+            ,{field:'PROPERTYNAME', title: '属性名'}
+            ,{field:'TYPENAME', title: '类型'}
+            ,{field:'EXTENT', title: '长度'}
+            ,{field:'DECIMALPOINT', title: '小数点'}
+            ,{field:'BZ', title: '备注'}
+            ,{field:'ISFRONT', title: '前台录入'}
+            ,{field:'DEFAULTVALUE', title: '默认值'}
+            ,{fixed:'right', title:'操作', width:'15%', toolbar: '#test-table-toolbar-barDemo',align: 'center'}
+        ]]
+        ,data: dataList()
+    });
+
+    //监听行工具事件
+    table.on('tool(test-table-toolbar)', function(obj){
+        var _data = obj.data;
+        switch(obj.event){
+            case 'del':
+                layer.msg('删除');
+                break;
+            case 'edit':
+                layer.msg('编辑');
+                break;
+        };
+    });
+    form.on('submit(submit-form)', function(obj){
+        var iSubmit = false;
+        var field = obj.field;
+        console.log(field);
+
+        return iSubmit;
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

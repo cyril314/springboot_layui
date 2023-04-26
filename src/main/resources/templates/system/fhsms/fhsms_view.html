@@ -1,0 +1,47 @@
+<@override name="popTitle">查看站内信</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <table class="layui-table">
+                        <tbody>
+                        <tr>
+                            <#if pd.TYPE == '2'>
+                                <td>
+                                    发信人：${pd.FROM_USERNAME}&nbsp;&nbsp;
+                                    收信人：${pd.TO_USERNAME}&nbsp;&nbsp;
+                                </td>
+                            <#else>
+                                <td>
+                                    发信人：${pd.TO_USERNAME}&nbsp;&nbsp;
+                                    收信人：${pd.FROM_USERNAME}&nbsp;&nbsp;
+                                </td>
+                            </#if>
+                            <td>发信时间：${pd.SEND_TIME}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="100">${pd.CONTENT}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index'], function(){
+
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

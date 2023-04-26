@@ -1,0 +1,134 @@
+<@override name="popTitle">数据字典列表</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="layui-form">
+            <form action="${webPath}/dictionaries/list.do" method="post" name="Form" id="Form">
+                <div class="layui-input-inline">
+                    <select name="DICTIONARIES_ID" id="LAY_ROLE_ID">
+                        <option value="${DICTIONARIES_ID}" <#if DICTIONARIES_ID != ''>selected</#if>>本级</option>
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="lay-search-id" placeholder="这里输入关键词" autocomplete="off" />
+                </div>
+                <#if QX.cha == 1>
+                    <button class="layui-btn" type="submit" title="搜索"><i class="layui-icon">&#xe615;</i></button>
+                </#if>
+            </form>
+            <table class="layui-table">
+                <thead>
+                    <tr>
+                        <th class='lay-text-center'>序号</th>
+                        <th class='lay-text-center'>名称</th>
+                        <th class='lay-text-center'>英文</th>
+                        <th class='lay-text-center'>编码</th>
+                        <th class='lay-text-center'>排序</th>
+                        <th class='lay-text-center'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <#if varList! >
+                        <#if QX.cha == 1>
+                            <#list varList as va>
+                                <tr>
+                                    <td align='center'>${va_index}</td>
+                                    <td align='center'><a href="javascript:goSondict('${va.DICTIONARIES_ID }')" class="blue"><i class="fa fa-share"></i>&nbsp;${va.NAME}</a></td>
+                                    <td align='center'><a href="javascript:goSondict('${va.DICTIONARIES_ID }')" class="blue">${va.NAME_EN}</a></td>
+                                    <td align='center'>${va.BIANMA}</td>
+                                    <td align='center'>${va.ORDER_BY}</td>
+                                    <td align='center'>
+                                        <#if QX.edit != 1 && Qx.del != 1><span>无权限</span></#if>
+                                        <#if QX.edit == 1>
+                                            <a class="layui-btn layui-btn-xs" onclick="edit('${va.DICTIONARIES_ID}')" title="编辑"><i class="layui-icon" style="margin-left:3px;">&#xe642;</i></a>
+                                        </#if>
+                                        <#if QX.del == 1>
+                                            <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="del('${va.DICTIONARIES_ID}')" title="删除"><i class="layui-icon" style="margin-left:3px;">&#xe640;</i></a>
+                                        </#if>
+                                    </td>
+                                </tr>
+                            </#list>
+                        <#else>
+                            <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                        </#if>
+                    <#else>
+                        <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                    </#if>
+                </tbody>
+            </table>
+            <div id="test1"></div>
+        </div>
+    </div>
+    <div class="layui-tab-content layui-btn-group">
+        <#if QX.add == 1><button class="layui-btn layui-btn-primary" lay-type="add" title="新增"><i class="layui-icon">&#xe654;</i></button></#if>
+        <#if null != pd.DEPARTMENT_ID && pd.DEPARTMENT_ID != ''>
+            <button class="layui-btn layui-btn-danger" lay-type="ret" title="返回"><i class="layui-icon">&#xe65c;</i></button>
+        </#if>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table','laypage','site'], function(){
+    var laypage = layui.laypage,site = layui.site,$ = layui.$,active = {
+        common: function(_url,_title){
+            layer.open({
+                type: 2,
+                title: _title,
+                id: 'LAY_layui_department',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['750px', '500px'],
+                content: [_url,'no']
+            });
+        },
+        add: function(){
+            var url = '${webPath}/dictionaries/goAdd.do?DICTIONARIES_ID=${DEPARTMENT_ID}'
+            active.common(url,'添加');
+        },
+        ret: function(){
+            goSondict('${pd.PARENT_ID}');
+        }
+    };
+
+    $('.layui-card-body .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+
+    //执行一个laypage实例
+    laypage.render({
+        elem: 'test1' //注意，这里的 test1 是 ID，不用加 # 号
+        ,count: ${count} //数据总数，从服务端得到
+    });
+
+    window.goSondict = function (ID){
+        window.location.href="${webPath}/dictionaries/list.do?DICTIONARIES_ID="+ID;
+    };
+
+    window.edit = function (ID){
+        var url = '${webPath}/dictionaries/goEdit.do?DICTIONARIES_ID='+ID;
+        active.common(url,'编辑');
+    };
+
+    window.del = function (id){
+        layer.confirm('确定要删除选中的数据吗', function(index){
+            site.post("${webPath}/dictionaries/delete.do",
+            {DICTIONARIES_ID:id,tm:new Date().getTime()},function(data){
+                parent.location.reload();
+                layer.close(index);
+            });
+        });
+    };
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

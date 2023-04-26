@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ENoseMapper">
+
+	<resultMap id="result_EpsmEnose_Map" type="com.fit.entity.epsm.Enose">
+        <id column="ENOSE_ID" property="enoseid" />
+        <result column="ENOSECODE" property="enosecode" />
+        <result column="ENOSENAME" property="enosename" />
+        <result column="ENOSESERIALNO" property="enoseserialno" />
+        <result column="ACTORID" property="actorid" />
+        <result column="COMPANYID" property="companyid" />
+        <result column="ADDRESSLATITUDE" property="addresslatitude" />
+        <result column="ADDRESSLONGITUDE" property="addresslongitude" />
+        <result column="STATUS" property="status" />
+        <result column="REMARK" property="remark" />
+        <result column="DELETEFLAG" property="deleteflag" />
+        <result column="CREATETIME" property="createtime" />
+        <result column="CREATORID" property="creatorid" />
+        <result column="UPDATETIME" property="updatetime" />
+        <result column="UPDATERID" property="updaterid" />
+        <result column="WSS" property="wss" />
+          
+        <association property="actor" column="ACTORID" javaType="com.fit.entity.epsm.Actor">
+			<id column="ACTOR_ID" property="actorid"/>
+			<result column="ACTOR_NAME" property="actorname"/>
+		</association>
+    
+    </resultMap>
+
+	
+	<!--表名 -->
+	<sql id="tableName">
+		T_EPSM_ENOSE
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		ENOSECODE,	
+		ENOSENAME,	
+		ENOSESERIALNO,	
+		ACTORID,	
+		COMPANYID,	
+		ADDRESSLATITUDE,
+		ADDRESSLONGITUDE,
+		STATUS,	
+		REMARK,	
+		DELETEFLAG,	
+		CREATETIME,	
+		UPDATETIME,	
+		CREATORID,	
+		UPDATERID,	
+		WSS,
+		ENOSE_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ENOSECODE},	
+		#{ENOSENAME},	
+		#{ENOSESERIALNO},	
+		#{ACTORID},	
+		#{COMPANYID},
+		#{ADDRESSLATITUDE},	
+		#{ADDRESSLONGITUDE},
+		#{STATUS},	
+		#{REMARK},	
+		#{DELETEFLAG},	
+		#{CREATETIME},	
+		#{UPDATETIME},	
+		#{CREATORID},	
+		#{UPDATERID},	
+		#{WSS},
+		#{ENOSE_ID}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ENOSE_ID = #{ENOSE_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			ENOSECODE = #{ENOSECODE},
+			ENOSENAME = #{ENOSENAME},
+			ENOSESERIALNO = #{ENOSESERIALNO},
+			ACTORID = #{ACTORID},
+			COMPANYID = #{COMPANYID},
+			ADDRESSLATITUDE = #{ADDRESSLATITUDE},
+			ADDRESSLONGITUDE = #{ADDRESSLONGITUDE},
+			STATUS = #{STATUS},
+			REMARK = #{REMARK},
+			DELETEFLAG = #{DELETEFLAG},
+			CREATETIME = #{CREATETIME},
+			UPDATETIME = #{UPDATETIME},
+			CREATORID = #{CREATORID},
+			UPDATERID = #{UPDATERID},
+			WSS = #{WSS},
+		ENOSE_ID = ENOSE_ID
+		where 
+		ENOSE_ID = #{ENOSE_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+			ENOSE_ID = #{ENOSE_ID}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 1=1
+		<if test="pd.keywords!= null and pd.keywords != ''"><!-- 关键词检索 -->
+			and
+				(
+				<!--	根据需求自己加检索条件
+					字段1 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+					 or 
+					字段2 LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%') 
+				-->
+				)
+		</if>
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 1=1 
+		<if test="enoseId != null and enoseId != ''">
+			and	ENOSE_ID = #{enoseId}
+		</if>
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ENOSE_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	
+	<!-- 列表 -->
+	<select id="startCheckEnose" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 1=1
+		<if test="status!=null and status!=''">
+			and STATUS=#{status} 
+		</if>
+		<if test="deleteFlag!=null and deleteFlag!=''">
+			and DELETEFLAG=#{deleteFlag} 
+		</if>
+	</select>
+	
+	<!-- 查询电子鼻最新电子鼻数据 -->
+	<select id="enoseList" parameterType="pd" resultType="pd">
+		select * from(
+		select
+			b.ENOSESERIALNO,
+			b.DYSODIATYPE,
+			b.DYSODIAVALUE,
+			b.STATUS,
+			b.TESTTIME,
+			b.CREATETIME,
+			b.ENOSEDATA_ID,
+			a.ENOSE_ID,
+			a.ADDRESSLATITUDE,
+			a.ADDRESSLONGITUDE
+		from 
+			t_epsm_enose a
+		left join 
+		  t_epsm_enosedata b
+		on a.ENOSESERIALNO=b.ENOSESERIALNO ) t1
+		where t1.TESTTIME = (		
+		SELECT max(TESTTIME) FROM(
+		select
+			b.ENOSESERIALNO,
+			b.DYSODIATYPE,
+			b.DYSODIAVALUE,
+			b.STATUS,
+			b.TESTTIME,
+			b.CREATETIME,
+			b.ENOSEDATA_ID,
+			a.ENOSE_ID,
+			a.ADDRESSLATITUDE,
+			a.ADDRESSLONGITUDE
+		from 
+			t_epsm_enose a
+		left join 
+		  t_epsm_enosedata b
+		on a.ENOSESERIALNO=b.ENOSESERIALNO ) 
+		t2 WHERE 
+		<if test="enoseId !=null and enoseId !=''">
+			 t1.ENOSE_ID=#{enoseId} and
+		</if>
+		t1.ENOSESERIALNO = t2.ENOSESERIALNO)
+	</select>
+	
+	
+	<!-- 获取电子鼻24hour统计数据 -->
+	<select id="getEnoseData24hour" parameterType="pd" resultType="pd">
+		SELECT	AVG (num :: INTEGER) as dysodiavalue,TESTTIME FROM
+		(
+			SELECT
+				to_char(
+					TESTTIME,
+					'YYYY-MM-DD HH24:00:00'
+				) AS testtime,
+			dysodiavalue AS num
+			FROM t_epsm_enosedata a LEFT JOIN t_epsm_enose b ON a.enoseserialno = b.enoseserialno 
+			where b.ENOSE_ID=#{enoseId} 
+				and TESTTIME BETWEEN (SELECT CURRENT_TIMESTAMP - INTERVAL '1 day')
+				and CURRENT_TIMESTAMP
+		) AS foo
+		GROUP BY TESTTIME;
+	</select>
+	
+	
+	
+	<!-- 获取异常电子鼻数据 -->
+	<select id="findEnoseException" parameterType="pd" resultType="pd">
+		select 
+			a.ENOSE_ID,
+			a.ENOSESERIALNO,
+			a.ENOSENAME,
+			a.UPDATETIME,
+			b.COMPANYNAME
+		from 
+		<include refid="tableName"></include> 
+		a left join 
+		  t_epsm_company b
+		on a.COMPANYID = b.COMPANY_ID
+		where 
+			STATUS != '100'
+	</select>
+	
+	<!-- 313596790qq(青苔) -->
+</mapper>

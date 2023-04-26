@@ -1,0 +1,199 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab-content">
+                        <div class="layui-form-item layui-form">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" id="keywords" name="keywords" placeholder="这里输入关键词" value="${pd.keywords}" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-inline" style="width: 100px;">
+                                    <input type="text" class="layui-input" name="lastLoginStart" id="lastLoginStart" value="${pd.lastLoginStart}" placeholder="开始日期"/>
+                                </div>
+                                <div class="layui-form-mid">-</div>
+                                <div class="layui-input-inline" style="width: 100px;">
+                                    <input type="text" class="layui-input" name="lastLoginEnd" id="lastLoginEnd" value="${pd.lastLoginEnd}" placeholder="结束日期"/>
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-inline layui-form">
+                                    <select name="TYPE" id="LAY_TYPE_ID">
+                                        <option value="">全部</option>
+                                        <option value="1" <#if pd.TYPE==1>selected</#if>>整库</option>
+                                        <option value="2" <#if pd.TYPE==2>selected</#if>>单表</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-btn-group layui-inline">
+                                <div class="layui-input-inline">
+                                    <#if QX.cha == 1>
+                                        <button class="layui-btn" lay-submit="" lay-filter="form-submit" lay-type="reload" title="搜索">
+                                            <i class="layui-icon">&#xe615;</i>
+                                        </button>
+                                    </#if>
+                                </div>
+                            </div>
+                        </div>
+                        <#if QX.cha == 0>
+                        <table>
+                            <tr>
+                                <td colspan="100">您无权查看</td>
+                            </tr>
+                        </table>
+                        <#else>
+                            <table class="layui-hide" id="test-table-page" lay-filter="test-table-toolbar"></table>
+                        </#if>
+                        <script type="text/html" id="zizeng">
+                            {{d.LAY_TABLE_INDEX+1}}
+                        </script>
+                        <script type="text/html" id="table-toolbar-barDemo">
+                            <#if QX.edit != 1 && QX.del != 1>
+                                无权限
+                            <#else>
+                                <#if QX.edit == 1>
+                                    <a class="layui-btn layui-btn-xs layui-btn-purple" id="del" lay-event="recover">还原</a>
+                                    <a class="layui-btn layui-btn-xs" lay-event="edit" title="编辑"><i class="layui-icon" style="margin-left:3px;">&#xe642;</i></a>
+                                </#if>
+                                <#if QX.del == 1>
+                                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" title="删除"><i class="layui-icon" style="margin-left:3px;">&#xe640;</i></a>
+                                </#if>
+                            </#if>
+                        </script>
+                    </div>
+                    <div class="layui-tab-content layui-btn-group">
+                        <#if QX.del == 1><button class="layui-btn layui-btn-danger" lay-type="allDel" title="批量删除"><i class="layui-icon">&#xe640;</i></button></#if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index','form', 'table', 'laydate','site'], function(){
+    var table = layui.table,laydate = layui.laydate,site = layui.site,$ = layui.$,form = layui.form,active = {
+        allDel: function(){
+            var checkStatus = table.checkStatus('test-table-page'),data = checkStatus.data;
+            var ids =new Array();
+            for(var i=0;i<data.length;i++){
+                ids.push(data[i].DB_ID);
+            }
+            if(ids.length<1){layer.msg("您没有选择任何内容!"); return false;}
+            layer.confirm('确定要删除选中的记录吗？(确保数据安全性,只删除记录,不删除物理硬盘数据)', function(index){
+                site.post("${webPath}/brdb/deleteAll.do",{DATA_IDS:ids.join(","),tm:new Date().getTime()},function(data){
+                    table.reload("test-table-page",{ page: {curr: 1 } });
+                    layer.close(index);
+                });
+            });
+        }
+    };
+    $('.layui-btn-group .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+    form.on('submit(form-submit)', function(data){
+        var field = data.field;
+        table.reload('test-table-page', {
+            page: {
+                currentPage: 1 //重新从第 1 页开始
+            },where: {
+                keywords: field.keywords,
+                lastStart: field.lastLoginStart,
+                lastEnd: field.lastLoginEnd,
+                TYPE: field.TYPE
+            }
+        });
+        return false;
+    });
+
+
+    laydate.render({
+        elem: '#lastLoginStart'
+    });
+    laydate.render({
+        elem: '#lastLoginEnd'
+    });
+    table.render({
+        elem: '#test-table-page'
+        ,url: '${webPath}/brdb/list'
+        ,method: 'post'
+        ,cols: [[
+            {type:'checkbox'}
+            ,{field:'', title: '序号',templet:'#zizeng'}
+            ,{field:'TABLENAME', title: '表名'}
+            ,{field:'BACKUP_TIME', title: '备份时间'}
+            ,{field:'USERNAME', title: '操作用户'}
+            ,{field:'SQLPATH', title: '存储位置'}
+            <#if remoteDB == 'no'>,{field:'DBSIZE', title: '数据大小'}</#if>
+            ,{field:'BZ', title: '备注'}
+            ,{fixed:'right', title:'操作', width:'25%', toolbar: '#table-toolbar-barDemo',align: 'center'}
+        ]]
+        ,page: true
+        ,request: {
+            pageName: 'currentPage' //页码的参数名称，默认：page
+            ,limitName: 'showCount' //每页数据量的参数名，默认：limit
+        }
+        ,parseData: function(res){ //res 即为原始返回的数据
+            return {
+                "code": res.code, //解析接口状态
+                "msg": res.msg, //解析提示文本
+                "data": res.varList, //解析数据列表
+                "count": res.count
+            };
+        }
+    });
+
+    //监听行工具事件
+    table.on('tool(test-table-toolbar)', function(obj){
+        var _data = obj.data;
+        if(obj.event === 'edit'){
+            layer.open({
+                type: 2,
+                title: '编辑',
+                id: 'LAY_layui_DB',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['500px', '260px'],
+                content: ['${webPath}/brdb/goEdit.do?DB_ID='+_data.DB_ID, 'no']
+            });
+        }else if(obj.event === 'del'){
+            layer.confirm('确定要删除此记录吗？(确保数据安全性,只删除记录,不删除物理硬盘数据)', function(index){
+                site.post("${webPath}/brdb/delete.do",{DB_ID:_data.DB_ID,tm:new Date().getTime()},function(data){
+                    if("success" == data){
+                        table.reload("test-table-page",{ page: {curr: 1 } });
+                    }
+                });
+                layer.close(index);
+            });
+        }else if(obj.event === 'recover'){
+            console.log(obj);
+            layer.confirm('确定要进行还原['+_data.TABLENAME+']吗?', function(index){
+                site.post("${webPath}/brdb/dbRecover.do",{TABLENAME:_data.TABLENAME,SQLPATH:_data.SQLPATH},function(data){
+                    if("ok" == data.list.msg){
+                        layer.alert('还原成功', {icon: 6,time:2000});
+                    }else{
+                        layer.alert('还原失败,检查配置文件及是否远程数据库', {icon: 5,time:2000});
+                    }
+                });
+                layer.close(index);
+            });
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

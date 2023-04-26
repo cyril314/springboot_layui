@@ -1,0 +1,106 @@
+<@override name="popTitle"></@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">2006年10月份至2007年3月份话费单</div>
+                <div class="layui-card-body">
+                    <table lay-filter="parse-table-demo">
+                        <thead>
+                        <tr>
+                            <th lay-data="{field:'id'}">编号</th>
+                            <th lay-data="{field:'phone'}">手机号码</th>
+                            <th lay-data="{field:'month'}">月份</th>
+                            <th lay-data="{field:'tonghua'}">通话费用</th>
+                            <th lay-data="{field:'ipfy'}">IP费用</th>
+                            <th lay-data="{field:'dxfy'}">短信息费用</th>
+                            <th lay-data="{field:'total'}">合计</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td height="30" align="center" bgcolor="#FFFFFF">1</td>
+                            <td align="center" bgcolor="#FFFFFF">13634449***&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;2006年10月</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;3.2</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;1.2</td>
+                            <td align="center" bgcolor="#FFFFFF">9&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">13.4</td>
+                        </tr>
+                        <tr>
+                            <td height="30" align="center" bgcolor="#FFFFFF">2</td>
+                            <td align="center" bgcolor="#FFFFFF">13634449***&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;2006年11月</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;6.9</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;3</td>
+                            <td align="center" bgcolor="#FFFFFF">7&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">16.9</td>
+                        </tr>
+                        <tr>
+                            <td height="30" align="center" bgcolor="#FFFFFF">3</td>
+                            <td align="center" bgcolor="#FFFFFF">13634449***&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;2006年12月</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;4.4</td>
+                            <td align="center" bgcolor="#FFFFFF">0.6</td>
+                            <td align="center" bgcolor="#FFFFFF">8&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">13</td>
+                        </tr>
+                        <tr>
+                            <td height="30" align="center" bgcolor="#FFFFFF">4</td>
+                            <td align="center" bgcolor="#FFFFFF">13634449***&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;2007年1月</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;18.2</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;3.3</td>
+                            <td align="center" bgcolor="#FFFFFF">10</td>
+                            <td align="center" bgcolor="#FFFFFF">31.5</td>
+                        </tr>
+                        <tr>
+                            <td height="30" align="center" bgcolor="#FFFFFF">5</td>
+                            <td align="center" bgcolor="#FFFFFF">13634449***&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;2007年2月</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;21</td>
+                            <td align="center" bgcolor="#FFFFFF">10.2</td>
+                            <td align="center" bgcolor="#FFFFFF">14&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">45.2</td>
+                        </tr>
+                        <tr>
+                            <td height="30" align="center" bgcolor="#FFFFFF">6</td>
+                            <td align="center" bgcolor="#FFFFFF">13634449***&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;2007年3月</td>
+                            <td align="center" bgcolor="#FFFFFF">14</td>
+                            <td align="center" bgcolor="#FFFFFF">&nbsp;7.2</td>
+                            <td align="center" bgcolor="#FFFFFF">5&nbsp;</td>
+                            <td align="center" bgcolor="#FFFFFF">26.2</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <table width="650" height="30" border="0" align="center" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td align="right"><button class="layui-btn" onClick="window.print()">打印</button>&nbsp;</td>
+                    </tr>
+                </table>
+                <hr/>
+                如果点打印按钮无反应,请用google 火狐等浏览器试试
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table'], function(){
+    var table = layui.table;
+    table.init('parse-table-demo', { //转化静态表格
+    //height: 'full-500'
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

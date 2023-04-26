@@ -1,0 +1,85 @@
+<@override name="popTitle">文件编辑</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body" style="padding: 15px;">
+        <form class="layui-form" action="${webPath}/fhfile/${msg }.do" method="post">
+            <input type="hidden" value="no" id="hasTp1" />
+            <input type="hidden" id="FILEPATH" name="FILEPATH" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">文件名:</label>
+                <div class="layui-input-block">
+                    <input type="text" name="NAME" id="NAME" value="${pd.NAME }" lay-verify="required"
+                           placeholder="这里输入文件名" maxlength="50" autocomplete="on" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">文件：</label>
+                <div class="layui-input-block">
+                    <div class="layui-upload">
+                        <button type="button" class="layui-btn layui-btn-normal" id="upload-change">选择文件</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="BZ" value="${pd.BZ }" lay-verify="required"
+                           maxlength="32" placeholder="这里输入备注" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button class="layui-btn" id="btn" lay-submit="" lay-filter="submit-form">提交</button>
+                        <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form','upload','site'], function(){
+    var $ = layui.$,form = layui.form, layer = layui.layer,upload = layui.upload,site = layui.site;
+    form.on('submit(submit-form)', function(obj){
+        var iSubmit = true;
+        var field = obj.field;
+        consolo.log(field);
+        if(field.FILEPATH==""||typeof(field.FILEPATH == "undefined")){
+            layer.msg('请选上传文件',{time:2*1000});
+            iSubmit = false;
+        }
+        return iSubmit;
+    });
+    var uploadInst = upload.render({
+        elem: '#upload-change' //绑定元素
+        ,url: '${webPath}/tool/uploadFile.do?uploadPath=/uploadFiles/uploadFile/' //上传接口
+        ,auto: true
+        ,before: function(obj){
+            layer.load(); //上传loading
+        }
+        ,done: function(res){
+            if(res.data != ''){
+                $('#FILEPATH').val(res.data);
+            }
+            layer.closeAll('loading');
+        }
+        ,error: function(){
+            layer.closeAll('loading'); //关闭loading
+        }
+    });
+    $(document).on('click','#cancel-form',function(){
+        var index=layer.getFrameIndex(window.name);
+        layer.close(index);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

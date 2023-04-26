@@ -1,0 +1,90 @@
+<@override name="popTitle">机构编辑</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body" style="padding: 15px;">
+        <form class="layui-form" action="${webPath}/command/${msg }.do" method="post" lay-filter="component-form-group">
+            <input type="hidden" name="COMMAND_ID" id="COMMAND_ID" value="${pd.COMMAND_ID}"/>
+            <div class="layui-form-item">
+                <label class="layui-form-label">关键词：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="KEYWORD" id="KEYWORD" value="${pd.KEYWORD }" lay-verify="required"
+                           placeholder="这里输入关键词" maxlength="50" autocomplete="on" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">应用路径：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="COMMANDCODE" value="${pd.COMMANDCODE }" lay-verify="required"
+                           maxlength="32" placeholder="这里输入应用路径" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="BZ" value="${pd.BZ }" lay-verify="required"
+                           maxlength="32" placeholder="这里输入备注" class="layui-input" />
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态：</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="switch" name="STATUS" value="${(pd.STATUS==2)?string('2','1')}"
+                           lay-filter="switchTest" ${(pd.STATUS=='2')?string('','checked')} lay-text="有效|无效" />
+                </div>
+            </div>
+            <div class="layui-form-item layui-layout-admin">
+                <div class="layui-input-block">
+                    <div class="layui-footer" style="left: 0;">
+                        <button class="layui-btn" lay-submit="" lay-filter="submit-form">提交</button>
+                        <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form;
+    form.on('switch(switchTest)', function(data){
+        $(data.elem).attr('type', 'hidden').val(this.checked ? 1 : 2);
+    });
+    form.on('submit(submit-form)', function(obj){
+        var iSubmit = true;
+        var field = obj.field;
+        if(field.KEYWORD !== ''){
+            $.ajax({
+                type: "POST",
+                url: '${webPath}/textmsg/hasK.do',
+                data: {KEYWORD:field.KEYWORD,COMMAND_ID:field.COMMAND_ID,tm:new Date().getTime()},
+                dataType:'json',
+                async: false,
+                cache: false,
+                success: function(data){
+                    if("success" != data.result){
+                        $('#KEYWORD').val('');
+                        layer.msg('此关键词已存在(全局)!',{time:5*1000})
+                        iSubmit = false;
+                    }
+                }
+            });
+        }
+        return iSubmit;
+    });
+    $(document).on('click','#cancel-form',function(){
+        window.history.go(-1);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

@@ -1,0 +1,158 @@
+<@override name="popTitle">员工列表</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="layui-tab-content layui-form">
+            <form action="${webPath}/fhfile/list.do" method="post">
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="lay-search-id" name="keywords" placeholder="这里输入关键词" autocomplete="off" />
+                </div>
+                <#if QX.cha == 1>
+                    <button class="layui-btn" data-type="reload" title="搜索"><i class="layui-icon">&#xe615;</i></button>
+                </#if>
+            </form>
+        </div>
+        <div class="layui-tab-content">
+            <div class="layui-form">
+                <table class="layui-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 18px;">
+                                <input type="checkbox" name="checkbox" lay-skin="primary" lay-filter="allChoose">
+                            </th>
+                            <th class='lay-text-center'>序号</th>
+                            <th class='lay-text-center'>文件名</th>
+                            <th class='lay-text-center'>上传者</th>
+                            <th class='lay-text-center'>备注</th>
+                            <th class='lay-text-center'>上传时间</th>
+                            <th class='lay-text-center'>文件大小</th>
+                            <th class='lay-text-center'>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <#if varList! >
+                            <#if QX.cha == 1>
+                                <#list varList as va>
+                                    <tr>
+                                        <td><input type="checkbox" name="checkbox" value="${va.FHFILE_ID}" lay-skin="primary"></td>
+                                        <td align='center'>${va_index}</td>
+                                        <td align='center'>
+                                            ${va.NAME}${va.FILEPATH?substring(19,(va.FILEPATH?length))}
+                                            <#if va.fileType == 'tupian'>
+                                            <a style="cursor:pointer;" onmouseover="showTU('uploadFiles/uploadFile/${va.FILEPATH}','yulantu${va_index}');"
+                                               onmouseout="hideTU('yulantu${vs.index+1}');">[预览]</a>
+                                            </#if>
+                                            <#if va.fileType == 'pdf'>
+                                            <a style="cursor:pointer;" onclick="goViewPdf('${va.NAME}${va.FILEPATH?substring(19,(va.FILEPATH?length))}\',\'${va.FHFILE_ID}','${var.FHFILE_ID}');">[预览]</a>
+                                            </#if>
+                                            <#if va.fileType == 'wenben'>
+                                            <a style="cursor:pointer;" onclick="goViewTxt('${var.NAME}${va.FILEPATH?substring(19,(va.FILEPATH?length))}','${va.FHFILE_ID}','gbk');">[预览]</a>
+                                            </#if>
+                                        </td>
+                                        <td align='center'>${va.USERNAME}</td>
+                                        <td align='center'>${va.BZ}</td>
+                                        <td align='center'>${va.CTIME}</td>
+                                        <td align='center'>${va.FILESIZE}&nbsp;KB</td>
+                                        <td align='center'>
+                                            <#if QX.edit != 1 && Qx.del != 1><span>无权限</span></#if>
+                                            <#if QX.edit == 1>
+                                                <a class="layui-btn layui-btn-xs" onclick="edit('${webPath}/fhfile/download.do?FHFILE_ID=${va.FHFILE_ID}')"
+                                                   title="下载"><i class="layui-icon" style="margin-left:3px;">&#xe601;</i></a>
+                                            </#if>
+                                            <#if QX.del == 1>
+                                                <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="del('${va.FHFILE_ID}')" title="删除">
+                                                    <i class="layui-icon" style="margin-left:3px;">&#xe640;</i></a>
+                                            </#if>
+                                        </td>
+                                    </tr>
+                                </#list>
+                            <#else>
+                                <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                            </#if>
+                        <#else>
+                            <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                        </#if>
+                    </tbody>
+                </table>
+                <div id="test1"></div>
+            </div>
+        </div>
+        <div class="layui-tab-content layui-btn-group">
+            <#if QX.add == 1><button class="layui-btn layui-btn-primary" lay-type="add" title="新增"><i class="layui-icon">&#xe654;</i></button></#if>
+            <#if QX.del == 1><button class="layui-btn layui-btn-danger" lay-type="allDel" title="批量删除"><i class="layui-icon">&#xe640;</i></button></#if>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index','laypage', 'table', 'site'], function(){
+    var laypage = layui.laypage,site = layui.site,$ = layui.$,active = {
+        common: function(_url,_title){
+            layer.open({
+                type: 2,
+                title: _title,
+                id: 'LAY_layui_File',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['470px', '270px'],
+                content: [_url,'no']
+            });
+        },
+        add: function(){
+            var url = '${webPath}/fhfile/goAdd.do'
+            active.common(url,'添加');
+        },
+        allDel: function(){
+            var arr = new Array();
+            $("input:checkbox[name='checkbox']:checked").each(function(i){
+                var obj = $(this).val();
+                arr[i] = obj;
+            });
+            if(arr.length<1){layer.msg("没有选中数据"); return false;}
+            console.log(arr);
+            layer.confirm('确定要删除选中的数据吗', function(index){
+                site.post("${webPath}/fhfile/deleteAll.do",
+                 {DATA_IDS:arr.join(","),tm:new Date().getTime()},function(data){
+                    location.reload();
+                    layer.close(index);
+                });
+            });
+        },
+        ret: function(){
+            goSondict('${pd.PARENT_ID}');
+        }
+    };
+
+    $('.layui-card-body .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+
+    //执行一个laypage实例
+    laypage.render({
+        elem: 'test1' //注意，这里的 test1 是 ID，不用加 # 号
+        ,count: ${count} //数据总数，从服务端得到
+    });
+
+    window.del = function (id){
+        layer.confirm('确定要删除选中的数据吗', function(index){
+            site.post("${webPath}/fhfile/delete.do",
+            {FHFILE_ID:id,tm:new Date().getTime()},function(data){
+                location.reload();
+                layer.close(index);
+            });
+        });
+    };
+    window.edit = function (url){
+        site.downFile(url);
+    };
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

@@ -1,0 +1,141 @@
+<@override name="popTitle"></@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-col-md12">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-tab-content">
+                    <div class="layui-collapse" lay-accordion="">
+                        <#if QX.edit == 1>
+                            <div class="layui-colla-item">
+                                <h2 class="layui-colla-title">连接数据库</h2>
+                                <div class="layui-colla-content layui-show layui-row">
+                                    <form class="layui-form" id="formId">
+                                        <div class="layui-form-item">
+                                            <div class="layui-inline">
+                                                <label class="layui-form-label">数据库：</label>
+                                                <div class="layui-input-inline">
+                                                    <select id="dbtype" name="dbtype" lay-verify="required" data-placeholder="请选择数据库">
+                                                        <option value="mysql">Mysql</option>
+                                                        <option value="oracle">Oracle</option>
+                                                        <option value="sqlserver">Sqlserver</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="layui-inline">
+                                                <label class="layui-form-label">地址：</label>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" id="dbAddress" name="dbAddress" value="localhost" lay-verify="required"
+                                                           placeholder="数据库连接地址" autocomplete="on" class="layui-input" />
+                                                </div>
+                                            </div>
+                                            <div class="layui-inline">
+                                                <label class="layui-form-label">端口：</label>
+                                                <div class="layui-input-inline">
+                                                    <input type="number" id="dbport" name="dbport" value="3306" lay-verify="required"
+                                                           placeholder="请输入端口" autocomplete="on" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <div class="layui-inline">
+                                                <label class="layui-form-label">用户名：</label>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" id="username" name="username" value="root" lay-verify="required"
+                                                           placeholder="请输入用户名" autocomplete="on" class="layui-input">
+                                                </div>
+                                            </div>
+                                            <div class="layui-inline">
+                                                <label class="layui-form-label">密码：</label>
+                                                <div class="layui-input-inline">
+                                                    <input type="password" id="password" name="password" lay-verify="required"
+                                                           placeholder="请输入密码" autocomplete="off" class="layui-input">
+                                                </div>
+                                            </div>
+                                            <div class="layui-inline">
+                                                <label class="layui-form-label">库名：</label>
+                                                <div class="layui-input-inline">
+                                                    <input type="text" id="databaseName" name="databaseName" lay-verify="required"
+                                                           placeholder="请输入库名" autocomplete="on" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <div class="layui-input-block" style="text-align: center;">
+                                                <button class="layui-btn" id="btn" lay-submit lay-filter="submit-form" title="连接">
+                                                    <i class="layui-icon">&#xe64c;</i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </#if>
+                    </div>
+                    <table id="ParesTable" lay-filter="parse-table-demo" style="display: none;">
+                        <thead>
+                        <tr>
+                            <th lay-data="{field:'id'}">序号</th>
+                            <th lay-data="{field:'name'}">表名</th>
+                            <th lay-data="{field:'operate'}">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="valuelist">
+                        <tr class='center'>
+                            <td colspan="10">数据显示区</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table', 'site', 'form'], function(){
+    var $ = layui.$,table = layui.table, site = layui.site, form = layui.form;
+    //提交
+    form.on('submit(submit-form)', function(obj){
+        var field = obj.field;
+        site.post("${webPath}/recreateCode/listAllTable.do?tm="+new Date().getTime(),field
+         ,function(data){
+            if("ok" == data.list[0].msg){
+                layer.tips('连接成功', '#btn', {tips: [2, '#0FA6D8'],time:2000});
+                $("#valuelist").html('');	//初始清空值列表
+                $.each(data.tblist, function(n, tblist){ 	//列出每条记录
+                    $("#valuelist").append(
+                        '<tr><td class="center">'+(n+1)+'</td><td>'+tblist+'</td>'+
+                        '<td class="center"><a class="layui-btn layui-btn-xs layui-btn-purple" onclick="productCode(\''+tblist+'\')">反射</a></td></tr>');
+                });
+                table.init('parse-table-demo',{page: true,limit: 10});
+            }else{
+                layer.tips('连接失败,检查连接参数是否正确！', '#btn', {tips: [3, '#0FA6D8'],time:2000}); return false;
+            }
+        });
+        return false;
+    });
+
+    window.productCode = function(table){
+        var params = $("#formId").serialize()+'&table='+table,
+            url = '${webPath}/recreateCode/goProductCode.do?'+params;
+        layer.open({
+            type: 2,
+            title: '代码生成器',
+            id: 'LAY_layui_Button',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['800px', '500px'],
+            content: [url]
+        });
+    }
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

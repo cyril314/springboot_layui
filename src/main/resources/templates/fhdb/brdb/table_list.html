@@ -1,0 +1,125 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab-content">
+                        <div class="layui-form">
+                            <table class="layui-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 18px;">
+                                            <input type="checkbox" name="checkbox" lay-skin="primary" lay-filter="allChoose">
+                                        </th>
+                                        <th style="text-align: center">序号</th>
+                                        <th style="text-align: center">表名</th>
+                                        <#if dbtype != 'sqlserver'><th style="text-align: center">操作</th></#if>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-layui-table">
+                                <#if varList! >
+                                    <#if QX.cha == 1>
+                                        <#list varList as vt>
+                                            <tr>
+                                                <td><input type="checkbox" name="checkbox" value="${vt }" lay-skin="primary"></td>
+                                                <td align="center">${vt_index}</td>
+                                                <td align="center">${vt }</td>
+                                                <#if dbtype != 'sqlserver'>
+                                                    <td align="center">
+                                                        <#if QX.add == 1>
+                                                            <a class="layui-btn layui-btn-xs" lay-event="bak">备份</a>
+                                                        </#if>
+                                                    </td>
+                                                </#if>
+                                            </tr>
+                                        </#list>
+                                    <#else>
+                                        <tr><td colspan="100" align="center">您无权查看</td></tr>
+                                    </#if>
+                                <#else>
+                                    <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                                </#if>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="layui-tab-content">
+                        <#if QX.add == 1>
+                            <#if dbtype != 'sqlserver'>
+                            <button class="layui-btn layui-btn-primary" id="chkBak" lay-type="chkBak">备份选中表</button>
+                            </#if>
+                            <button class="layui-btn layui-btn-primary" id="allBak" lay-type="allBak">备份整个库</button>
+                        </#if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['table','form','index','site'], function(){
+    var table = layui.table,form = layui.form,$ = layui.$,site = layui.site
+     ,active = {
+        chkBak: function(){
+            var arr = new Array();
+            $("input:checkbox[name='checkbox']:checked").each(function(i){
+                arr[i] = $(this).val();
+            });
+            if(arr.length<1){layer.msg("没有选中数据"); return false;}
+            layer.confirm('确定要备份选中的数据吗', function(index){
+                site.post("${webPath}/brdb/backupTable.do",
+                 {fhtable:arr.join(","),tm:new Date().getTime()},function(data){
+                    $.each(data.list, function(i, list){
+                        if("ok" == list.msg){
+                            layer.tips('备份成功', '#chkBak', {tips: [2, '#0FA6D8'],time:2000});
+                        }else{
+                            layer.tips('备份失败,检查配置文件及备份保存路径', '#chkBak', {tips: [3, '#0FA6D8'],time:2000});
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+        },
+        allBak: function(){
+            layer.confirm('确定要备份所有数据吗', function(index){
+                site.post("${webPath}/brdb/backupAll.do",
+                 {tm:new Date().getTime()},function(data){
+                    $.each(data.list, function(i, list){
+                        if("ok" == list.msg){
+                            layer.tips('备份成功', '#allBak', {tips: [2, '#0FA6D8'],time:2000});
+                        }else{
+                            layer.tips('备份失败,检查配置文件及备份保存路径', '#allBak', {tips: [3, '#0FA6D8'],time:2000});
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+        }
+    };
+
+    $('.layui-card-body .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+
+    form.on('checkbox(allChoose)', function(data){
+        var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
+        child.each(function(index, item){
+            item.checked = data.elem.checked;
+        });
+        form.render('checkbox');
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

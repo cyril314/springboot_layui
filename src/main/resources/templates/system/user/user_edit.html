@@ -1,0 +1,158 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" action="${webPath}/user/${msg }.do" method="post" lay-filter="component-form-element">
+                <input type="hidden" name="USER_ID" id="user_id" value="${pd.USER_ID }"/>
+                <div class="layui-row layui-col-space10 layui-form-item">
+                    <div class="layui-col-lg6">
+                        <label class="layui-form-label">角色：</label>
+                        <div class="layui-input-block">
+                            <select name="ROLE_ID" lay-verify="required" lay-search="" />
+                                <option value="">请选择角色</option>
+                                <#list roleList as role>
+                                <#if role.ROLE_ID == pd.ROLE_ID>
+                                    <option value="${role.ROLE_ID }" selected>${role.ROLE_NAME }</option>
+                                <#else>
+                                    <option value="${role.ROLE_ID }">${role.ROLE_NAME }</option>
+                                </#if>
+                                </#list>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">用户名：</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="USERNAME" id="USERNAME" value="${pd.USERNAME }" lay-verify="required" autocomplete="on" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密码：</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="PASSWORD" lay-verify="pass|required" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">确认密码：</label>
+                    <div class="layui-input-block">
+                        <input type="password" name="chkpwd" lay-verify="required" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">编号：</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="NUMBER" id="NUMBER" value="${pd.NUMBER }" lay-verify="required" autocomplete="on" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">手机号：</label>
+                    <div class="layui-input-block">
+                        <input type="tel" name="PHONE" lay-verify="phone|required" value="${pd.PHONE }" maxlength="11" autocomplete="on" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">姓名：</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="NAME" lay-verify="required" value="${pd.NAME }" autocomplete="on" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">邮箱：</label>
+                    <div class="layui-input-block">
+                        <input type="email" name="EMAIL" id="EMAIL" value="${pd.EMAIL }" lay-verify="email|required" autocomplete="on" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注：</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="BZ" value="${pd.BZ }" autocomplete="off" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="submit-form">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form;
+    $(document).ready(function(){
+        if($("#user_id").val()!=""){
+            $("#loginname").attr("readonly","readonly");
+        }
+    });
+    form.verify({
+        number : [/^[0-9]*$/, '必须输入正整数']
+    });
+    form.on('submit(submit-form)', function(obj){
+        var field = obj.field;
+        console.log(field);
+        //确认密码
+        if(!(field.PASSWORD == field.chkpwd)){
+            layer.msg('两次密码输入不一致');
+            return false;
+        }
+        if(field.EMAIL !== ''){
+            $.ajax({
+                type: "POST",
+                url: '${webPath}/user/hasE.do',
+                data: {EMAIL:field.EMAIL,USERNAME:field.USERNAME,tm:new Date().getTime()},
+                dataType:'json',
+                cache: false,
+                success: function(data){
+                    if("success" != data.result)
+                        layer.msg('邮箱'+field.EMAIL+'已存在')
+                        $('#EMAIL').val('');
+                }
+            });
+        }
+        if(field.NUMBER !== ''){
+            $.ajax({
+                type: "POST",
+                url: '${webPath}/user/hasE.do',
+                data: {NUMBER:field.NUMBER,USERNAME:field.USERNAME,tm:new Date().getTime()},
+                dataType:'json',
+                cache: false,
+                success: function(data){
+                    if("success" != data.result)
+                        layer.msg('编号'+field.NUMBER+'已存在')
+                        $('#NUMBER').val('');
+                }
+            });
+        }
+        if(field.USERNAME !== ''){
+            $.ajax({
+                type: "POST",
+                url: '${webPath}/user/hasE.do',
+                data: {USERNAME:field.USERNAME,tm:new Date().getTime()},
+                dataType:'json',
+                cache: false,
+                success: function(data){
+                    if("success" != data.result){
+                        layer.msg('此用户名已存在')
+                        $('#USERNAME').val('');
+                    }
+                }
+            });
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

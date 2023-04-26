@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="TaskMapper">
+
+	 <resultMap id="resultTaskMap" type="com.fit.entity.cache.Task">
+        <id column="TASK_ID" property="taskId" />
+        <result column="TASKNAME" property="taskName" />
+        <result column="BUSINESSCLASS" property="businessClass" />
+        <result column="CREATEID" property="createId" />
+        <result column="TASKCRON" property="taskCron" />
+        <result column="CREATETIME" property="createTime" />
+        <result column="STATUS" property="status" />
+        <result column="REMARK" property="remark" />
+
+		<collection property="taskParamList" ofType="com.fit.entity.cache.TaskParam">
+			<id column="TASK_PARAM_ID" property="taskParamId"></id>
+			<result column="TASK_ID" property="taskId"></result>
+			<result column="PARAMCODE" property="paramCode"></result>
+			<result column="PARAMVALUE" property="paramValue"></result>
+			<result column="CREATETIME" property="createTime"></result>
+			<result column="STATUS" property="status"></result>
+			<result column="REMARK" property="remark"></result>
+		</collection>
+
+    </resultMap>
+    
+	<!--表名 -->
+	<sql id="tableName">
+		T_CFG_TASK
+	</sql>
+	
+	<!--表名 -->
+	<sql id="taskParamTable">
+		T_CFG_TASK_PARAM
+	</sql>
+	
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		TASK_ID,	
+		TASKNAME,	
+		BUSINESSCLASS,	
+		CREATEID,	
+		TASKCRON,	
+		CREATETIME,
+		STATUS,
+		REMARK
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{TASK_ID},	
+		#{TASKNAME},	
+		#{BUSINESSCLASS},	
+		#{CREATEID},	
+		#{TASKCRON},	
+		#{CREATETIME},
+		#{STATUS},
+		#{REMARK}
+	</sql>
+	
+	
+	<!-- 列表(全部可用的) -->
+	<select id="listAll" parameterType="java.util.Map" resultMap="resultTaskMap">
+		select
+			a.TASK_ID,
+			a.TASKNAME,
+			a.BUSINESSCLASS,
+			a.CREATEID,
+			a.TASKCRON,
+			a.CREATETIME,
+			a.STATUS,
+			a.REMARK,
+			b.PARAMCODE,
+			b.PARAMVALUE
+		from 
+		<include refid="tableName"></include> a,
+		<include refid="taskParamTable"></include> b
+		<where>
+			 a.TASK_ID = b.TASK_ID
+			 <if test="status != null and status != ''">
+			   AND a.STATUS = #{status} and b.STATUS = #{status} 
+			 </if>
+		</where>
+	</select>
+	
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			TASK_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	<!-- 313596790qq(青苔) -->
+</mapper>

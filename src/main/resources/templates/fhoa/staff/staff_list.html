@@ -1,0 +1,235 @@
+<@override name="popTitle">员工列表</@override>
+
+<@override name="csslibs">
+<!-- 树形下拉框start -->
+<script type="text/javascript" src="${webPath}/js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/ztree/ztree.js"></script>
+<link type="text/css" rel="stylesheet" href="${webPath}/plugins/selectZtree/ztree/ztree.css"></link>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/selectTree.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/selectZtree/framework.js"></script>
+<link rel="stylesheet" type="text/css" href="${webPath}/plugins/selectZtree/import_fh.css"/>
+<!-- 树形下拉框end -->
+</@override>
+<@override name="CSS">
+.layui-tree li a {
+font-size: 1px;
+}
+</@override>
+
+<@override name="body">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <div class="layui-tab-content layui-form">
+            <form action="${webPath}/staff/list.do" method="post">
+                <input name="ZDEPARTMENT_ID" id="ZDEPARTMENT_ID" type="hidden" value="${pd.ZDEPARTMENT_ID }" />
+                <input name="DEPARTMENT_ID" id="DEPARTMENT_ID" type="hidden" value="${pd.DEPARTMENT_ID }" />
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="keywords" name="keywords" value="${pd.keywords}" placeholder="这里输入关键词" autocomplete="off" />
+                </div>
+                <div class="layui-input-inline">
+                    <div class="selectTree layui-tree" id="selectTree"></div>
+                </div>
+                <#if QX.cha == 1>
+                <button type="submit" class="layui-btn" lay-type="reload" title="搜索"><i class="layui-icon">&#xe615;</i></button>
+                </#if>
+            </form>
+        </div>
+        <div class="layui-tab-content">
+            <div class="layui-form">
+                <table class="layui-table" id="reloadTables">
+                    <thead>
+                        <tr>
+                            <th style="width: 18px;">
+                                <input type="checkbox" name="checkbox" lay-skin="primary" lay-filter="allChoose">
+                            </th>
+                            <th class='lay-text-center'>序号</th>
+                            <th class='lay-text-center'>姓名</th>
+                            <th class='lay-text-center'>编码</th>
+                            <th class='lay-text-center'>部门</th>
+                            <th class='lay-text-center'>电话</th>
+                            <th class='lay-text-center'>性别</th>
+                            <th class='lay-text-center'>绑定登录户用</th>
+                            <th class='lay-text-center'>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <#if varList! >
+                            <#if QX.cha == 1>
+                                <#list varList as va>
+                                    <tr>
+                                        <td><input type="checkbox" name="checkbox" value="${va.STAFF_ID}" lay-skin="primary"></td>
+                                        <td align='center'>${va_index}</td>
+                                        <td align='center'>${va.NAME}</td>
+                                        <td align='center'>${va.BIANMA}</td>
+                                        <td align='center'>${va.DNAME}</td>
+                                        <td align='center'>${va.TEL}</td>
+                                        <td align='center'>${va.SEX}</td>
+                                        <td align='center'>
+                                            <#if va.USER_ID != ''>
+                                                <a onclick="viewUser('${va.USER_ID}')" style="cursor:pointer;">
+                                                    <i id="nav-search-icon" class="ace-icon fa fa-search blue"></i>${va.USER_ID}
+                                                </a>
+                                            <#else>
+                                                未绑定
+                                            </#if>
+                                        </td>
+                                        <td align='center'>
+                                            <#if QX.edit != 1 && Qx.del != 1><span>无权限</span></#if>
+                                            <#if QX.userBinding == 1>
+                                                <a class="layui-btn layui-btn-xs" onclick="userBinding('${va.STAFF_ID}')" title="绑定用户"><i class="layui-icon" style="margin-left:3px;">&#xe673;</i></a>
+                                            </#if>
+                                            <#if QX.Datajur == 1>
+                                                <a class="layui-btn layui-btn-xs" onclick="setDatajur('${va.STAFF_ID}')" title="授权"><i class="layui-icon" style="margin-left:3px;">&#xe674;</i></a>
+                                            </#if>
+                                            <#if QX.edit == 1>
+                                                <a class="layui-btn layui-btn-xs" onclick="edit('${va.STAFF_ID}')" title="编辑"><i class="layui-icon" style="margin-left:3px;">&#xe642;</i></a>
+                                            </#if>
+                                            <#if QX.del == 1>
+                                                <a class="layui-btn layui-btn-danger layui-btn-xs" onclick="del('${va.STAFF_ID}')" title="删除"><i class="layui-icon" style="margin-left:3px;">&#xe640;</i></a>
+                                            </#if>
+                                        </td>
+                                    </tr>
+                                </#list>
+                            <#else>
+                                <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                            </#if>
+                        <#else>
+                            <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                        </#if>
+                    </tbody>
+                </table>
+                <div id="test1"></div>
+            </div>
+        </div>
+        <div class="layui-tab-content layui-btn-group">
+            <#if QX.add == 1><button class="layui-btn layui-btn-primary" lay-type="add" title="新增"><i class="layui-icon">&#xe654;</i></button></#if>
+            <#if QX.del == 1><button class="layui-btn layui-btn-danger" lay-type="allDel" title="批量删除"><i class="layui-icon">&#xe640;</i></button></#if>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+var values;
+function params(e){
+    values = e;
+};
+function initComplete(){
+    //下拉树
+    var defaultNodes = {"treeNodes":${zTreeNodes}};
+    //绑定change事件
+    $("#selectTree").bind("change",function(){
+        if(!$(this).attr("relValue")){
+        //  top.Dialog.alert("没有选择节点");
+        }else{
+            //alert("选中节点文本："+$(this).attr("relText")+"<br/>选中节点值："+$(this).attr("relValue"));
+            $("#DEPARTMENT_ID").val($(this).attr("relValue"));
+        }
+    });
+    //赋给data属性
+    $("#selectTree").data("data",defaultNodes);
+    $("#selectTree").render();
+}
+
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table','laypage','site'], function(){
+    var laypage = layui.laypage,site = layui.site,$ = layui.$,active = {
+        common: function(_url,_title){
+            layer.open({
+                type: 2,
+                title: _title,
+                id: 'LAY_layui_department',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['750px', '500px'],
+                content: [_url]
+            });
+        },
+        add: function(){
+            var url = '${webPath}/staff/goAdd.do'
+            active.common(url,'添加');
+        },
+        allDel: function(){
+            var arr = new Array();
+            $("input:checkbox[name='checkbox']:checked").each(function(i){
+                var obj = $(this).val();
+                arr[i] = obj;
+            });
+            if(arr.length<1){layer.msg("没有选中数据"); return false;}
+            console.log(arr);
+            layer.confirm('确定要删除选中的数据吗', function(index){
+                site.post("${webPath}/staff/deleteAll.do",
+                 {DATA_IDS:arr.join(","),tm:new Date().getTime()},function(data){
+                    location.reload();
+                    layer.close(index);
+                });
+            });
+        }
+    };
+
+    $('.layui-card-body .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+
+    //执行一个laypage实例
+    laypage.render({
+        elem: 'test1' //注意，这里的 test1 是 ID，不用加 # 号
+        ,count: ${count} //数据总数，从服务端得到
+    });
+
+    window.goSondict = function (DEPARTMENT_ID){
+        window.location.href="${webPath}/department/list.do?DEPARTMENT_ID="+DEPARTMENT_ID;
+    };
+
+    window.edit = function (id){
+        active.common('${webPath}/staff/goEdit.do?STAFF_ID='+id,'编辑');
+    };
+
+    window.setDatajur = function (id){
+        active.common('${webPath}/datajur/goEdit.do?DATAJUR_ID='+id,'授予组织机构数据权限');
+    };
+    window.userBinding = function (id){
+        var index = layer.open({
+            type: 2,
+            title: '绑定登录用户',
+            id: 'LAY_layui_department',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['750px', '500px'],
+            content: ['${webPath}/user/listUsersForWindow.do?STAFF_ID='+id],
+            end: function(){
+                console.log(values);
+                if(!(site.isEmpty(values))){
+                    site.post("${webPath}/staff/userBinding.do",
+                     {STAFF_ID:id,USER_ID:values,tm:new Date().getTime()},function(data){
+                        location.reload();
+                    });
+                }
+            }
+        });
+    };
+
+    window.viewUser = function (USERNAME){
+        if('admin' == USERNAME){
+            layer.msg('不能查看admin用户');
+        }
+        active.common('${webPath}/user/view.do?USERNAME='+USERNAME,'查看');
+    };
+
+    window.del = function (id){
+        layer.confirm('确定要删除选中的数据吗', function(index){
+            site.post("${webPath}/staff/delete.do",
+            {STAFF_ID:id,tm:new Date().getTime()},function(data){
+                parent.location.reload();
+                layer.close(index);
+            });
+        });
+    };
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

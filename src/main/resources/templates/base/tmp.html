@@ -1,0 +1,70 @@
+<@override name="popTitle"></@override>
+
+<@override name="body">
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="test-table-checkbox"></table>
+                    <script type="text/html" id="zizeng">
+                        {{d.LAY_TABLE_INDEX+1}}
+                    </script>
+                    <script type="text/html" id="test-table-toolbar-barDemo">
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'table'], function(){
+    var admin = layui.admin,table = layui.table;
+    table.render({
+        elem: '#test-table-page'
+        ,url: '${webPath}/role/getRole'
+        ,method: 'post'
+        ,cols: [[
+            {type:'checkbox'}
+            ,{field:'id', title: '序号',templet:'#zizeng'}
+            ,{field:'username', width:80, title: '用户名'}
+            ,{fixed:'right', title:'操作', width:'25%', toolbar: '#test-table-toolbar-barDemo',align: 'center'}
+        ]]
+        ,page: true
+        ,request: {
+            pageName: 'currentPage' //页码的参数名称，默认：page
+            ,limitName: 'showCount' //每页数据量的参数名，默认：limit
+        }
+        ,parseData: function(res){ //res 即为原始返回的数据
+            return {
+                "code": res.code, //解析接口状态
+                "msg": res.msg, //解析提示文本
+                "data": res.varList, //解析数据列表
+                "count": res.count
+            };
+        }
+        ,done: function(){
+            $("[data-field='STATUS']").children().each(function(){
+                if($(this).text()==1){
+                    $(this).text("有效")
+                }else if($(this).text()==2){
+                    $(this).text("无效")
+                }
+            });
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

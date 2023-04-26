@@ -1,0 +1,71 @@
+<@override name="popTitle">发送邮件</@override>
+
+<@override name="body">
+<form class="layui-form">
+    <textarea name="CONTENT" id="CONTENT" lay-verify="CONTENT" style="display:none" ></textarea>
+    <div class="layui-fluid" id="LAY-component-grid-mobile-pc">
+        <div class="layui-row layui-col-space12">
+            <div class="layui-col-xs10 layui-col-md10">
+                <textarea placeholder="这里不能手动修改" id="USERNAME" name="USERNAME"
+                          readonly="readonly" class="layui-input">${pd.username}</textarea>
+            </div>
+            <div class="layui-col-xs2 layui-col-md2">
+                <button class="layui-btn" lay-type="seek" title="搜索"><i class="layui-icon">&#xe615;</i></button>
+            </div>
+        </div>
+        <div class="layui-row">
+            <input type="text" name="title" lay-verify="required" placeholder="请输入标题" class="layui-input"/>
+        </div>
+        <div class="layui-row" style="padding-top: 8px;">
+            <div class="layui-col-xs12 layui-col-md12">
+                <script id="editor" type="text/plain" style="width:568px;height:200px;"></script>
+            </div>
+        </div>
+        <div class="layui-row layui-col-space12">
+            <div class="layui-col-xs6 layui-col-md6">
+                <input type="radio" name="TYPE" value="1" title="纯文本" checked=""/>
+                <input type="radio" name="TYPE" value="2" title="带标签" />
+            </div>
+            <div class="layui-col-xs6 layui-col-md6">
+                <button class="layui-btn" lay-submit="" lay-filter="submit-form">提交</button>
+                <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+            </div>
+        </div>
+    </div>
+</form>
+</@override>
+
+<@override name="jslibs">
+<script type="text/javascript" src="${webPath}/plugins/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="${webPath}/plugins/ueditor/ueditor.all.js"></script>
+</@override>
+
+<@override name="JS">
+window.UEDITOR_HOME_URL = "${webPath}/plugins/ueditor/";
+var ue = UE.getEditor('editor');
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'site','form'], function(){
+    var layer = layui.layer, $ = layui.$, form = layui.form, site = layui.site, active = {
+        seek:function(){
+            var vals = $("#USERNAME").val();
+            layer.prompt({id:'seeks',title: '',value: vals, formType: 2,closeBtn: 0
+            , placeholder: '这里不能手动修改',caption:'这里不能手动修改',readonly:'readonly'}
+            , function(value, index, elem){
+                layer.close(index);
+            });
+        }
+    };
+    $('.layui-fluid .layui-btn').on('click', function(){
+        var type = $(this).attr("lay-type");
+        active[type] ? active[type].call(this) : '';
+    });
+    form.verify({
+        CONTENT : [/^\s*$/g, '内容不能为空']
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

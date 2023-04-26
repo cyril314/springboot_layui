@@ -1,0 +1,114 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid" id="component-tabs">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab layui-tab-brief" lay-filter="component-tabs-brief">
+                        <ul class="layui-tab-title" id="LAY_ROLE">
+                            <#if roleList!>
+                                <#list roleList as role>
+                                    <#if pd.ROLE_ID == role.ROLE_ID>
+                                        <li class="layui-this" value="${role.ROLE_ID }">${role.ROLE_NAME }</li>
+                                    <#else>
+                                        <li value="${role.ROLE_ID }">${role.ROLE_NAME }</li>
+                                    </#if>
+                                </#list>
+                            <#else>
+                                <li>没有相关数据</li>
+                            </#if>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-form">
+                                <table class="layui-table">
+                                    <thead>
+                                        <tr>
+                                            <th align="center">序号</th>
+                                            <th align="center">角色</th>
+                                            <#if QX.edit == 1 >
+                                                <#list buttonlist as blt>
+                                                    <th align="center">${blt.NAME }</th>
+                                                </#list>
+                                            </#if>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <#if roleList_z! >
+                                        <#if QX.cha == 1>
+                                            <#list roleList_z as rolz>
+                                                <tr>
+                                                    <td align="center">${rolz_index+1}</td>
+                                                    <td align="center">${rolz.ROLE_NAME }</td>
+                                                    <#if QX.edit == 1 >
+                                                        <#list buttonlist as blt>
+                                                            <#list roleFhbuttonlist as rbl>
+                                                                <#if rolz.ROLE_ID == rbl.ROLE_ID && blt.FHBUTTON_ID == rbl.BUTTON_ID><#assign rbvalue="1"/></#if>
+                                                            </#list>
+                                                            <td align="center">
+                                                                <#if rbvalue==1>
+                                                                    <input type="checkbox" lay-data="${rolz.ROLE_ID},${blt.FHBUTTON_ID}" lay-skin="switch" lay-filter="switchTest" title="开关" checked/>
+                                                                <#else>
+                                                                    <input type="checkbox" lay-data="${rolz.ROLE_ID},${blt.FHBUTTON_ID}" lay-skin="switch" lay-filter="switchTest" title="开关" />
+                                                                </#if>
+                                                            </td>
+                                                            <#assign rbvalue="0"/>
+                                                        </#list>
+                                                    </#if>
+                                                    <#if QX.edit == 0 ></#if>
+                                                </tr>
+                                            </#list>
+                                        <#else>
+                                            <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                                        </#if>
+                                    <#else>
+                                        <tr><td colspan="100" align="center">没有相关数据</td></tr>
+                                    </#if>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/'
+}).extend({
+    index: 'js/index'
+}).use(['index', 'table','form'], function(){
+    var table = layui.table,form = layui.form,$ = layui.$;
+    $("#LAY_ROLE li").on('click', function(obj){
+        var id = $(this).attr("value");
+        window.location.href='${webPath}/buttonrights/list.do?ROLE_ID='+id
+    });
+    form.on('switch(switchTest)', function(data){
+        var _dom = $(data.elem);
+        var _data = _dom.attr("lay-data").split(',');
+        upRb(_data[0],_data[1]);
+    });
+    // 自定义可以被外部使用
+    window.upRb = function(ROLE_ID,FHBUTTON_ID){
+        $.ajax({
+            type: "POST",
+            url: "${webPath}/buttonrights/upRb.do?ROLE_ID="+ROLE_ID+"&BUTTON_ID="+FHBUTTON_ID+"&guid="+new Date().getTime(),
+            data: encodeURI(""),
+            dataType:'json',
+            //beforeSend: validateData,
+            cache: false,
+            success: function(data){
+            }
+        });
+    }
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

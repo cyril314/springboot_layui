@@ -1,0 +1,110 @@
+<@override name="popTitle">机构编辑</@override>
+
+<@override name="body">
+    <div class="layui-card">
+        <div class="layui-card-body" style="padding: 15px;">
+            <form class="layui-form" action="${webPath}/menu/${MSG }.do" method="post" lay-filter="component-form-group">
+                <input type="hidden" name="MENU_ID" id="menuId" value="${pd.MENU_ID }"/>
+                <input type="hidden" name="MENU_STATE" id="checkStatus" value="${pd.MENU_STATE }"/>
+                <input type="hidden" name="PARENT_ID" id="PARENT_ID" value="${(null == pd.PARENT_ID) ? string(MENU_ID,pd.PARENT_ID)}"/>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">上级：</label>
+                        <div class="layui-input-inline">
+                            <div class="layui-form-mid layui-word-aux">
+                                ${(null == pds.MENU_NAME) ? string('(无) 此部门为顶级',pds.MENU_NAME)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="MENU_NAME" id="NAME" value="${pd.MENU_NAME }" lay-verify="required"
+                                   placeholder="这里输入名称" maxlength="50" autocomplete="on" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">序号：</label>
+                        <div class="layui-input-inline">
+                            <input type="number" name="MENU_ORDER" value="${pd.MENU_ORDER }" lay-verify="number|required"
+                                   maxlength="32" placeholder="这里输入序号" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">链接：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="MENU_URL" value="${pd.MENU_URL }" lay-verify="required"
+                                   maxlength="32" placeholder="这里输入链接" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <#if '0' == MENU_ID>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">类型：</label>
+                            <div class="layui-input-block">
+                                <input type="radio" name="MENU_TYPE" value="1" title="系统菜单" ${(pd.MENU_TYPE=='1')?string('checked','')} />
+                                <input type="radio" name="MENU_TYPE" value="2" title="业务菜单" ${(pd.MENU_TYPE=='2')?string('checked','')} />
+                            </div>
+                        </div>
+                    </div>
+                </#if>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">状态：</label>
+                        <div class="layui-input-inline">
+                            <input type="checkbox" lay-skin="switch" lay-filter="switchTest"
+                                   value="${(pd.MENU_STATE==1)?string('1','0')}" ${(pd.MENU_STATE=='1')?string('checked','')} lay-text="显示|隐藏" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button class="layui-btn" lay-submit="" lay-filter="submit-form">提交</button>
+                            <button class="layui-btn layui-btn-primary" id="cancel-form">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index', 'form'], function(){
+    var $ = layui.$,form = layui.form;
+    $(document).ready(function(){
+        if($("#BIANMA").val()!=""){
+            $("#BIANMA").attr("readonly","readonly");
+        }
+    });
+    form.on('switch(switchTest)', function(data){
+        if(this.checked){
+            $("#checkStatus").val(1);
+        }else{
+            $("#checkStatus").val(0);
+        }
+    });
+    form.verify({
+        number : [/^[0-9]*$/, '必须输入正整数']
+    });
+    $(document).on('click','#cancel-form',function(){
+        window.history.go(-1);
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

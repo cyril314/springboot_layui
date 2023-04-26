@@ -1,0 +1,51 @@
+<@override name="popTitle">角色列表</@override>
+
+<@override name="body">
+<div class="layui-fluid layadmin-homepage-fluid">
+    <div class="layui-row layui-col-space8">
+        <div class="layui-col-md2">
+            <ul id="leftTree"></ul>
+        </div>
+        <div class="layui-col-md10">
+            <#assign divalue="0"/>
+            <#assign dpvalue="1"/>
+            <#if '' != DEPARTMENT_ID><#assign divalue="${DEPARTMENT_ID}"/></#if>
+            <#if null != pd.dnowPage || '' != pd.dnowPage><#assign dpvalue="${pd.dnowPage}"/></#if>
+            <iframe src="${webPath}/department/list.do?DEPARTMENT_ID=${divalue}&currentPage=${dpvalue}"
+                    name="treeFrame" id="treeFrame" frameborder="0" style="margin:0 auto;width:100%;height:100%;"></iframe>
+        </div>
+    </div>
+</div>
+</@override>
+
+<@override name="foot"></@override>
+
+<@override name="JS">
+layui.config({
+    base: '${webPath}/' //静态资源所在路径
+}).extend({
+    index: 'js/index' //主入口模块
+}).use(['index','tree'], function(){
+    var $ = layui.$,tree = layui.tree,data = ${zTreeNodes};
+    $(function(){
+        window.onresize=function(){
+            var hmainT = document.getElementById("treeFrame");
+            var bheightT = document.documentElement.clientHeight;
+            hmainT.style.width = '100%';
+            hmainT.style.height = (bheightT-26) + 'px';
+        };
+        onresize();
+    });
+    tree({
+        elem: '#leftTree' //传入元素选择器
+        ,nodes: data
+        ,click: function(item){ //点击节点回调
+            var url = "${webPath}/"+item.url;
+            var frame = document.getElementById("treeFrame");
+            frame.src=url;
+        }
+    });
+});
+</@override>
+
+<@extends name="base/base.ftl"/>

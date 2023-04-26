@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SmsMapper">
+	<!--表名 -->
+	<sql id="tableName">
+		T_SMS
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		SMS_ID,	
+		SMSTEMPLATECODE,	
+		CODE,	
+		CREATETIME,	
+		STATUS,	
+		UPDATETIME,
+		PHONE
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{SMS_ID},	
+		#{SMSTEMPLATECODE},	
+		#{CODE},	
+		#{CREATETIME},	
+		#{STATUS},	
+		#{UPDATETIME},
+		#{PHONE}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	
+	<!-- 查找验证短信没有被验证，且在有限期内 -->
+	<select id="findByPhone" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		<where>
+			<!-- status代表该条短信还未验证 -->
+			PHONE = #{phone} and STATUS = '0'  
+			<if test="code != null and code != ''">
+				and CODE = #{code}
+			</if>
+			<if test="createStartTime != null and createStartTime != '' and createEndTime != null and createEndTime != ''">
+				and CREATETIME BETWEEN #{createStartTime} AND #{createEndTime}
+			</if>
+		</where>	
+		ORDER BY CREATETIME DESC  LIMIT 1
+	</select>
+		
+	<!-- 修改状态 -->
+	<update id="editStatus" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			STATUS = #{status}
+		where 
+		SMS_ID = #{smsId}
+	</update>
+	
+</mapper>

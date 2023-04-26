@@ -1,0 +1,110 @@
+package com.aim.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cn.jiguang.common.ClientConfig;
+import cn.jiguang.common.resp.APIConnectionException;
+import cn.jiguang.common.resp.APIRequestException;
+import cn.jpush.api.JPushClient;
+import cn.jpush.api.push.PushResult;
+import cn.jpush.api.push.model.Message;
+import cn.jpush.api.push.model.Platform;
+import cn.jpush.api.push.model.PushPayload;
+import cn.jpush.api.push.model.audience.Audience;
+import cn.jpush.api.push.model.audience.AudienceTarget;
+import cn.jpush.api.push.model.notification.Notification;
+
+/**
+ * 说明：极光推送工具类 
+ * 创建人：chenwt 
+ * 修改时间：2017-07-12
+ * @version
+ */
+public class JPushServiceUtil {
+	private static final String APP_KEY = "b42cf34e58c7efab98bc88d9"; // 必填
+	private static final String MASTER_SECRET = "85eedc077325d4432be325f4";// "13ac09b17715bd117163d8a1";//必填，每个应用都对应一个masterSecret
+
+	protected static final Logger LOG = LoggerFactory.getLogger(JPushServiceUtil.class);
+
+	
+
+	public static void main(String[] args) {
+		// testSendPushWithCustomConfig();
+		// testSendIosAlert();
+		sendIosAlert();
+		//testSendPush();
+		// testSendPushes();
+		// testSendPush_fromJSON();
+		// testSendPushWithCallback();
+	}
+
+	public static void sendIosAlert(){
+		JPushClient jpushClient = new JPushClient(MASTER_SECRET, APP_KEY, null, ClientConfig.getInstance());
+
+	    // For push, all you need do is to build PushPayload object.
+	    //PushPayload payload = buildPushObject_all_all_alert();
+		//PushPayload payload = buildPushObject_all_alias_alert();
+		PushPayload payload = buildPushObject_all_alias_alert(null);
+	    try {
+	        PushResult result = jpushClient.sendPush(payload);
+	        LOG.info("Got result - " + result);
+		
+	    } catch (APIConnectionException e) {
+	        // Connection error, should retry later
+	        LOG.error("Connection error, should retry later", e);
+
+	    } catch (APIRequestException e) {
+	        // Should review the error, and fix the request
+	        LOG.error("Should review the error, and fix the request", e);
+	        LOG.info("HTTP Status: " + e.getStatus());
+	        LOG.info("Error Code: " + e.getErrorCode());
+	        LOG.info("Error Message: " + e.getErrorMessage());
+	    }
+	} 
+	
+
+    //快捷地构建推送对象：所有平台，所有设备，内容为 ALERT 的通知。
+	public static PushPayload buildPushObject_all_all_alert() {
+	    return PushPayload.alertAll("333333333");
+	}
+	
+    //构建推送对象：所有平台，推送目标是别名为 "alias1"，通知内容为 ALERT。
+    public static PushPayload buildPushObject_all_alias_alert(String message) {
+        return PushPayload.newBuilder()
+                .setPlatform(Platform.all())
+                .setAudience(Audience.alias("2153023861694859a30e856d90cd86b1"))
+                .setNotification(Notification.alert("1111111111"))
+                .build();
+    }
+
+    //构建推送对象：平台是 Andorid 与 iOS，推送目标是 （"tag1" 与 "tag2" 的并集）交（"alias1" 与 "alias2" 的并集），推送内容是 - 内容为 MSG_CONTENT 的消息，并且附加字段 from = JPush。
+    public static PushPayload buildPushObject_ios_audienceMore_messageWithExtras() {
+        return PushPayload.newBuilder()
+                .setPlatform(Platform.android_ios())
+                .setAudience(Audience.newBuilder()
+                        //.addAudienceTarget(AudienceTarget.tag("tag1", "tag2"))
+                        .addAudienceTarget(AudienceTarget.alias("alias1", "alias2"))
+                        .build())
+                .setMessage(Message.newBuilder()
+                        .setMsgContent("1111111")
+                        .addExtra("from", "JPush")
+                        .build())
+                .build();
+    }
+    
+    //构建推送对象：平台是iOS，推送目标是 （"tag1" 与 "tag2" 的并集）交（"alias1" 与 "alias2" 的并集），推送内容是 - 内容为 MSG_CONTENT 的消息，并且附加字段 from = JPush。
+    public static PushPayload buildPushObject_ios_audience() {
+        return PushPayload.newBuilder()
+                .setPlatform(Platform.ios())
+                .setAudience(Audience.newBuilder()
+                        .addAudienceTarget(AudienceTarget.tag("tag1"))
+                        .addAudienceTarget(AudienceTarget.alias("alias1"))
+                        .build())
+                .setMessage(Message.newBuilder()
+                        .setMsgContent("222222")
+                        .addExtra("from", "JPush")
+                        .build())
+                .build();
+    }
+}
