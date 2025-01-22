@@ -91,9 +91,7 @@
     }).extend({
         index: 'js/index' //主入口模块
     }).use(['index', 'user'], function () {
-        var admin = layui.admin
-            , form = layui.form;
-        $ = jQuery = layui.$;
+        var admin = layui.admin, form = layui.form, $ = jQuery = layui.$;
         function changeCode() {
             var time = new Date();
             $("#LAY-get-user-vercode").attr("src", "${webPath}/code.do?t=" + time.getTime());

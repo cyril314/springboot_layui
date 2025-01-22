@@ -2,15 +2,12 @@ package com.fit.config;
 
 import com.fit.interceptor.LoginHandlerInterceptor;
 import com.fit.util.DbFH;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.annotation.Resource;
 

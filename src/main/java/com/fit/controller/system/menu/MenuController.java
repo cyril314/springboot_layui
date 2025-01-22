@@ -251,7 +251,7 @@ public class MenuController extends BaseController {
             pd.put("MENU_ID", MENU_ID);
             String MENU_URL = menuService.getMenuById(pd).getString("MENU_URL");
             if ("#".equals(MENU_URL.trim()) || "".equals(MENU_URL.trim()) || null == MENU_URL) {
-                MENU_URL = "login_default.do";
+                MENU_URL = "login";
             }
             String roleRights = Jurisdiction.getSession().getAttribute(Jurisdiction.getUsername() + Const.SESSION_ROLE_RIGHTS).toString();    //获取本角色菜单权限
             List<Menu> athmenuList = menuService.listAllMenuQx(MENU_ID);                    //获取某菜单下所有子菜单

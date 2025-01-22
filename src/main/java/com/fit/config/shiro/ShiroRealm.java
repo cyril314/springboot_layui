@@ -1,6 +1,5 @@
 package com.fit.config.shiro;
 
-import com.fit.entity.PageData;
 import com.fit.service.system.user.UserManager;
 import com.fit.util.Const;
 import org.apache.shiro.authc.*;
@@ -18,7 +17,7 @@ import java.util.HashSet;
 /**
  * Shiro身份认证
  */
-public class DefaultShiroRealm extends AuthorizingRealm {
+public class ShiroRealm extends AuthorizingRealm {
 
     @Autowired
     @Lazy

@@ -25,7 +25,7 @@ public class LayApplication extends SpringBootServletInitializer {
                 "Application MultiAdmin is running! Access URLs:\n\t" +
                 "Local: \t\thttp://localhost:" + port + "/\n\t" +
                 "External:\thttp://" + ip + ":" + port + "/" +
-                "\n-----------------页面请部署 admin-web----------------------");
+                "\n-----------------已启动部署 admin-web----------------------");
     }
 
     @Override
