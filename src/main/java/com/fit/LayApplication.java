@@ -20,12 +20,9 @@ public class LayApplication extends SpringBootServletInitializer {
         ConfigurableApplicationContext run = SpringApplication.run(LayApplication.class, args);
         String ip = InetAddress.getLocalHost().getHostAddress();
         String port = getParam("POST", run.getEnvironment().getProperty("server.port"));
-
-        log.info("\n---------------------------------------------------------\n" +
-                "Application MultiAdmin is running! Access URLs:\n\t" +
-                "Local: \t\thttp://localhost:" + port + "/\n\t" +
-                "External:\thttp://" + ip + ":" + port + "/" +
-                "\n-----------------已启动部署 admin-web----------------------");
+        log.info("---------------------------------------------------------");
+        log.info("\nApplication MultiAdmin is running! Access URLs:\n\tLocal: \t\thttp://localhost:{}\n\tExternal:\t{}://{}:{}", port, "http", ip, port);
+        log.info("-----------------已启动部署 admin-web----------------------");
     }
 
     @Override
