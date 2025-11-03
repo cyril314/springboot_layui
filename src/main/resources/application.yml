@@ -53,24 +53,28 @@ spring:
   datasource:
     # 连接池
     druid:
-      # 配置初始化大小、最小、最大
-      initial-size: 5
-      max-active: 200
-      min-idle: 5
-      # 连接超时时间
-      max-wait: 6000
-      # 间隔多久进行一次检测，检测需要关闭的空闲连接，单位是毫秒
-      time-between-eviction-runs-millis: 60000
-      # 一个连接在连接池中最小的生存时间，单位是毫秒
-      min-evictable-idle-time-millis: 120000
-      # 用来检测连接是否有效的sql，要求是一个查询语句。 如果validationQuery为null，testOnBorrow、testOnReturn、 testWhileIdle都不会其作用。
-      validation-query: SELECT 1
-      # 当从连接池借用连接时，是否测试该连接
-      test-on-borrow: false
-      # 在连接归还到连接池时是否测试该连接
-      test-on-return: false
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1 FROM DUAL
       # 当连接空闲时，是否执行连接测试
-      test-while-idle: true
+      testWhileIdle: true
+      # 当从连接池借用连接时，是否测试该连接
+      testOnBorrow: false
+      # 在连接归还到连接池时是否测试该连接
+      testOnReturn: false
       # 是否缓存preparedStatement，也就是PSCache。 PSCache对支持游标的数据库性能提升巨大，比如说oracle。 在mysql5.5以下的版本中没有PSCache功能，建议关闭掉
       pool-prepared-statements: true
       # 要启用PSCache，必须配置大于0，当大于0时， poolPreparedStatements自动触发修改为true。 在Druid中，不会存在Oracle下PSCache占用内存过多的问题， 可以把这个数值配置大一些，比如说100
